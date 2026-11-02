@@ -38,7 +38,6 @@ class LoginController extends Controller
 
         return redirect()->intended(route('dashboard'));
     }
-
     /** Shared by both login pages. Sends admins back to the admin login. */
     public function destroy(Request $request): RedirectResponse
     {
