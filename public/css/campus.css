@@ -1,0 +1,181 @@
+:root {
+  /* PUP palette: maroon and gold */
+  --maroon: #800000;
+  --maroon-dark: #5c0000;
+  --gold: #f5b800;
+  --accent: #800000;      /* links, active tab underline */
+  --focus: #800000;       /* keyboard focus ring */
+
+  --paper: #f7f5f4;
+  --surface: #ffffff;
+  --ink: #241416;
+  --muted: #6b5b5d;
+  --line: #e3dcda;
+  --danger: #b42318;
+  --danger-bg: #fdecea;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --maroon: #9b1c1c;
+    --maroon-dark: #7a1414;
+    --accent: #f5b800;
+    --focus: #f5b800;
+
+    --paper: #1a1214;
+    --surface: #251a1c;
+    --ink: #f4ecec;
+    --muted: #b6a3a5;
+    --line: #3d2c2f;
+    --danger: #ff8f84;
+    --danger-bg: #3a1a17;
+  }
+}
+
+* { box-sizing: border-box; }
+
+
+body {
+  margin: 0;
+  font-family: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+a { color: var(--accent); font-weight: 600; }
+
+/* ---------- Auth layout ---------- */
+.auth {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(300px, 5fr) 6fr;
+}
+
+.auth-brand {
+  background: var(--maroon);
+  border-right: 6px solid var(--gold);
+  color: #fff;
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
+}
+.auth-brand h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.05;
+  margin: 0;
+  max-width: 14ch;
+}
+.auth-brand p { margin: 0; max-width: 34ch; opacity: .85; }
+
+/* The ticket: the one memorable element */
+.ticket {
+  position: relative;
+  background: #fff;
+  color: #12202b;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  max-width: 320px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: center;
+}
+.ticket::before, .ticket::after {
+  content: "";
+  position: absolute;
+  left: 68%;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--maroon);
+}
+.ticket::before { top: -11px; }
+.ticket::after  { bottom: -11px; }
+.ticket-main small { display: block; color: #5d6b78; font-size: .8rem; }
+.ticket-main strong { font-size: 1.15rem; }
+.ticket-code {
+  border-left: 2px dashed #c9d3dc;
+  padding-left: 1rem;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  font-variant-numeric: tabular-nums;
+}
+
+.auth-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+}
+.auth-card { width: 100%; max-width: 420px; }
+.auth-card h2 { font-size: 1.75rem; margin: 0 0 .25rem; }
+.auth-card .sub { color: var(--muted); margin: 0 0 1.75rem; }
+
+/* ---------- Forms ---------- */
+.field { margin-bottom: 1.1rem; }
+.field label { display: block; font-weight: 600; margin-bottom: .35rem; font-size: .95rem; }
+.field .hint { color: var(--muted); font-size: .85rem; margin-top: .3rem; }
+
+input[type=text], input[type=password], select {
+  width: 100%;
+  padding: .7rem .85rem;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+}
+input:focus-visible, select:focus-visible, .btn:focus-visible, a:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.field.has-error input, .field.has-error select { border-color: var(--danger); }
+.error { color: var(--danger); font-size: .88rem; margin-top: .3rem; }
+
+.check { display: flex; align-items: center; gap: .5rem; margin-bottom: 1.4rem; color: var(--muted); }
+
+.btn {
+  display: inline-block;
+  width: 100%;
+  padding: .8rem 1rem;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  background: var(--maroon);
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+}
+.btn:hover { background: var(--maroon-dark); }
+.btn-quiet {
+  width: auto;
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid var(--line);
+}
+.btn-quiet:hover { background: var(--surface); }
+
+.switch { margin-top: 1.5rem; text-align: center; color: var(--muted); }
+
+/* ---------- Home placeholder ---------- */
+.shell { max-width: 760px; margin: 0 auto; padding: 3rem 1.5rem; }
+.shell h1 { margin-top: 0; }
+.chip {
+  display: inline-block;
+  padding: .15rem .6rem;
+  border-radius: 99px;
+  background: var(--gold);
+  color: #12202b;
+  font-weight: 700;
+  font-size: .85rem;
+}
+
+@media (max-width: 800px) {
+  .auth { grid-template-columns: 1fr; }
+  .auth-brand { padding: 2rem 1.5rem; gap: 1.25rem; border-right: 0; border-bottom: 6px solid var(--gold); }
+  .ticket { display: none; }
+}
