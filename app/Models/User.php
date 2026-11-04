@@ -61,6 +61,16 @@ class User extends Authenticatable
         return $this->role === Role::Admin;
     }
 
+    /** "Maria Santos" becomes "MS". Used for avatar circles. */
+    public function initials(): string
+    {
+        return collect(preg_split('/\s+/', trim($this->name)))
+            ->filter()
+            ->take(2)
+            ->map(fn ($w) => mb_strtoupper(mb_substr($w, 0, 1)))
+            ->implode('');
+    }
+
     public function isFaculty(): bool
     {
         return $this->role === Role::Faculty;

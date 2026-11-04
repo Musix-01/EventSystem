@@ -19,7 +19,6 @@
         @foreach (collect(\App\Http\Controllers\Auth\LoginController::portals())->only(['student', 'officer', 'faculty']) as $key => $portal)
             <a class="choice" href="{{ route('login', ['as' => $key]) }}">
                 <strong>{{ $portal['title'] }}</strong>
-                <span>{{ $portal['hint'] }}</span>
             </a>
         @endforeach
     </nav>

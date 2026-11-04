@@ -25,21 +25,18 @@ class LoginController extends Controller
                 'roles' => [Role::Student],
                 'by'    => 'student_number',
                 'title' => 'Student',
-                'hint'  => 'Join events and get your check-in code',
                 'brand' => 'Join the events your org is hosting.',
             ],
             'officer' => [
                 'roles' => [Role::Officer],
                 'by'    => 'student_number',
                 'title' => 'Organization officer',
-                'hint'  => 'Request events and manage attendance',
                 'brand' => 'Request events and keep track of who showed up.',
             ],
             'faculty' => [
                 'roles' => [Role::Faculty, Role::Admin],   // PUP office admins sign in here too
                 'by'    => 'email',
                 'title' => 'Faculty',
-                'hint'  => 'Faculty and PUP office: events and attendance',
                 'brand' => 'Keep track of campus events and attendance.',
             ],
         ];

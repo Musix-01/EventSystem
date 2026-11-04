@@ -9,7 +9,14 @@
         </div>
         <a class="btn btn-inline" href="{{ route('officer.events.create') }}">Request an event</a>
     </div>
-
+    <div class="page-head">
+        <nav class="event-tabs" aria-label="Filter approved events">
+            <a href="{{ route('officer.events.index', array_filter(['view' => 'all', 'q' => $q ?? null])) }}" @if ($view === 'all' || !$view) aria-current="page" @endif>All</a>
+            <a href="{{ route('officer.events.index', array_filter(['view' => 'approved', 'q' => $q ?? null])) }}" @if ($view === 'approved') aria-current="page" @endif>Approved</a>
+            <a href="{{ route('officer.events.index', array_filter(['view' => 'pending', 'q' => $q ?? null])) }}" @if ($view === 'pending') aria-current="page" @endif>Pending</a>
+            <a href="{{ route('officer.events.index', array_filter(['view' => 'declined', 'q' => $q ?? null])) }}" @if ($view === 'declined') aria-current="page" @endif>Declined</a>
+        </nav>
+    </div>
     @forelse ($events as $event)
         <article class="event">
             <div class="event-top">

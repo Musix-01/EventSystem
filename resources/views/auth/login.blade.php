@@ -3,7 +3,6 @@
 
 @section('brand')
     <h1>{{ $portal['brand'] }}</h1>
-    <p>{{ $portal['hint'] }}.</p>
 @endsection
 
 @section('content')

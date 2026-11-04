@@ -7,16 +7,20 @@
             <h1>Upcoming events</h1>
             <p>
                 @if (auth()->user()->isStaff()) All approved events.
-                @else Events from {{ auth()->user()->organization->value }} and from other organizations.
+                @else Open events and events from {{ auth()->user()->organization->value }}.
                 @endif
             </p>
         </div>
     </div>
 
+    @if ($q !== '')
+        <p class="note-empty" style="margin-bottom:1rem">Results for “{{ $q }}”. <a href="{{ route('events.index') }}">Clear search</a></p>
+    @endif
+
     @unless (auth()->user()->isStaff())
         <nav class="tabs" aria-label="Filter events">
-            <a href="{{ route('events.index') }}" @if ($view === 'all') aria-current="page" @endif>All events</a>
-            <a href="{{ route('events.index', ['view' => 'mine']) }}" @if ($view === 'mine') aria-current="page" @endif>
+            <a href="{{ route('events.index', array_filter(['q' => $q])) }}" @if ($view === 'all') aria-current="page" @endif>All events</a>
+            <a href="{{ route('events.index', array_filter(['view' => 'mine', 'q' => $q])) }}" @if ($view === 'mine') aria-current="page" @endif>
                 {{ auth()->user()->organization->value }} only
             </a>
         </nav>

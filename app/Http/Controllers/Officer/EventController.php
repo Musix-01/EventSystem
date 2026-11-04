@@ -16,17 +16,33 @@ use Illuminate\View\View;
 class EventController extends Controller
 {
     /** All events of the officer's own organization. */
-    public function index(Request $request): View
-    {
-        $events = Event::query()
-            ->where('organization', $request->user()->organization->value)
-            ->with(['requester', 'letter'])
-            ->withCount('registrations')
-            ->orderByDesc('starts_at')
-            ->get();
+public function index(Request $request): View
+{
+    $view = $request->query('view', 'all'); // Sets a default string state if none is selected
+    $q = $request->query('q');
 
-        return view('officer.events.index', compact('events'));
+    $query = Event::query()
+        ->where('organization', $request->user()->organization->value)
+        ->with(['requester', 'letter'])
+        ->withCount('registrations');
+
+    if ($view === 'approved') {
+        $query->where('status', \App\Enums\EventStatus::Approved->value);
+    } elseif ($view === 'pending') {
+        $query->where('status', \App\Enums\EventStatus::Pending->value);
+    } elseif ($view === 'declined') {
+        $query->where('status', \App\Enums\EventStatus::Declined->value);
     }
+
+    if (!empty($q)) {
+        $query->where('title', 'like', '%' . $q . '%');
+    }
+
+    $events = $query->orderByDesc('starts_at')->get();
+
+    // Make sure 'view' and 'q' are added here:
+    return view('officer.events.index', compact('events', 'view', 'q'));
+}
 
     public function create(): View
     {

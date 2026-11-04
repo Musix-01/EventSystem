@@ -1,180 +1,312 @@
 :root {
-  /* PUP palette: maroon and gold */
-  --maroon: #800000;
-  --maroon-dark: #5c0000;
-  --gold: #f5b800;
-  --accent: #800000;      /* links, active tab underline */
-  --focus: #800000;       /* keyboard focus ring */
+    /* PUP palette: maroon and gold */
+    --maroon: #800000;
+    --maroon-dark: #5c0000;
+    --gold: #f5b800;
+    --accent: #800000; /* links, active tab underline */
+    --focus: #800000; /* keyboard focus ring */
 
-  --paper: #f7f5f4;
-  --surface: #ffffff;
-  --ink: #241416;
-  --muted: #6b5b5d;
-  --line: #e3dcda;
-  --danger: #b42318;
-  --danger-bg: #fdecea;
+    --paper: #f7f5f4;
+    --surface: #ffffff;
+    --ink: #241416;
+    --muted: #6b5b5d;
+    --line: #e3dcda;
+    --danger: #b42318;
+    --danger-bg: #fdecea;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --maroon: #9b1c1c;
-    --maroon-dark: #7a1414;
-    --accent: #f5b800;
-    --focus: #f5b800;
+    :root {
+        --maroon: #9b1c1c;
+        --maroon-dark: #7a1414;
+        --accent: #f5b800;
+        --focus: #f5b800;
 
-    --paper: #1a1214;
-    --surface: #251a1c;
-    --ink: #f4ecec;
-    --muted: #b6a3a5;
-    --line: #3d2c2f;
-    --danger: #ff8f84;
-    --danger-bg: #3a1a17;
-  }
+        --paper: #1a1214;
+        --surface: #251a1c;
+        --ink: #f4ecec;
+        --muted: #b6a3a5;
+        --line: #3d2c2f;
+        --danger: #ff8f84;
+        --danger-bg: #3a1a17;
+    }
 }
 
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
 
 body {
-  margin: 0;
-  font-family: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", sans-serif;
-  background: var(--paper);
-  color: var(--ink);
-  line-height: 1.5;
+    margin: 0;
+    font-family:
+        "Bricolage Grotesque",
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.5;
 }
 
-a { color: var(--accent); font-weight: 600; }
+a {
+    color: #d49f008d;;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
 
 /* ---------- Auth layout ---------- */
 .auth {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: minmax(300px, 5fr) 6fr;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: minmax(300px, 5fr) 6fr;
 }
 
 .auth-brand {
-  background: var(--maroon);
-  border-right: 6px solid var(--gold);
-  color: #fff;
-  padding: 3rem 2.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2rem;
+    background: var(--maroon);
+    border-right: 6px solid var(--gold);
+    color: #fff;
+    padding: 3rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
 }
 .auth-brand h1 {
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.05;
-  margin: 0;
-  max-width: 14ch;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.05;
+    margin: 0;
+    max-width: 14ch;
 }
-.auth-brand p { margin: 0; max-width: 34ch; opacity: .85; }
+.auth-brand p {
+    margin: 0;
+    max-width: 34ch;
+    opacity: 0.85;
+}
 
 /* The ticket: the one memorable element */
 .ticket {
-  position: relative;
-  background: #fff;
-  color: #12202b;
-  border-radius: 14px;
-  padding: 1.25rem 1.5rem;
-  max-width: 320px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 1rem;
-  align-items: center;
+    position: relative;
+    background: #fff;
+    color: #12202b;
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    max-width: 320px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: center;
 }
-.ticket::before, .ticket::after {
-  content: "";
-  position: absolute;
-  left: 68%;
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  background: var(--maroon);
+.ticket::before,
+.ticket::after {
+    content: "";
+    position: absolute;
+    left: 68%;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--maroon);
 }
-.ticket::before { top: -11px; }
-.ticket::after  { bottom: -11px; }
-.ticket-main small { display: block; color: #5d6b78; font-size: .8rem; }
-.ticket-main strong { font-size: 1.15rem; }
+.ticket::before {
+    top: -11px;
+}
+.ticket::after {
+    bottom: -11px;
+}
+.ticket-main small {
+    display: block;
+    color: #5d6b78;
+    font-size: 0.8rem;
+}
+.ticket-main strong {
+    font-size: 1.15rem;
+}
 .ticket-code {
-  border-left: 2px dashed #c9d3dc;
-  padding-left: 1rem;
-  font-size: 1.4rem;
-  font-weight: 800;
-  letter-spacing: .12em;
-  font-variant-numeric: tabular-nums;
+    border-left: 2px dashed #c9d3dc;
+    padding-left: 1rem;
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    font-variant-numeric: tabular-nums;
 }
 
 .auth-panel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2.5rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1.5rem;
 }
-.auth-card { width: 100%; max-width: 420px; }
-.auth-card h2 { font-size: 1.75rem; margin: 0 0 .25rem; }
-.auth-card .sub { color: var(--muted); margin: 0 0 1.75rem; }
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+}
+.auth-card h2 {
+    font-size: 1.75rem;
+    margin: 0 0 0.25rem;
+}
+.auth-card .sub {
+    color: var(--muted);
+    margin: 0 0 1.75rem;
+}
 
 /* ---------- Forms ---------- */
-.field { margin-bottom: 1.1rem; }
-.field label { display: block; font-weight: 600; margin-bottom: .35rem; font-size: .95rem; }
-.field .hint { color: var(--muted); font-size: .85rem; margin-top: .3rem; }
-
-input[type=text], input[type=email], input[type=password], select {
-  width: 100%;
-  padding: .7rem .85rem;
-  font: inherit;
-  color: var(--ink);
-  background: var(--surface);
-  border: 1.5px solid var(--line);
-  border-radius: 8px;
+.field {
+    margin-bottom: 1.1rem;
 }
-input:focus-visible, select:focus-visible, .btn:focus-visible, a:focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 2px;
+.field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+    font-size: 0.95rem;
 }
-.field.has-error input, .field.has-error select { border-color: var(--danger); }
-.error { color: var(--danger); font-size: .88rem; margin-top: .3rem; }
+.field .hint {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+}
 
-.check { display: flex; align-items: center; gap: .5rem; margin-bottom: 1.4rem; color: var(--muted); }
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    font: inherit;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+}
+input:focus-visible,
+select:focus-visible,
+.btn:focus-visible,
+a:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+}
+.field.has-error input,
+.field.has-error select {
+    border-color: var(--danger);
+}
+.error {
+    color: var(--danger);
+    font-size: 0.88rem;
+    margin-top: 0.3rem;
+}
+
+.check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.4rem;
+    color: var(--muted);
+}
 
 .btn {
-  display: inline-block;
-  width: 100%;
-  padding: .8rem 1rem;
-  font: inherit;
-  font-weight: 700;
-  color: #fff;
-  background: var(--maroon);
-  border: 0;
-  border-radius: 8px;
-  cursor: pointer;
-  text-align: center;
+    display: inline-block;
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font: inherit;
+    font-weight: 700;
+    color: #fff;
+    background: var(--maroon);
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
 }
-.btn:hover { background: var(--maroon-dark); }
+.btn:hover {
+    background: var(--maroon-dark);
+}
 .btn-quiet {
-  width: auto;
-  background: transparent;
-  color: var(--ink);
-  border: 1.5px solid var(--line);
+    width: auto;
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--line);
 }
-.btn-quiet:hover { background: var(--surface); }
+.btn-quiet:hover {
+    background: var(--surface);
+}
 
-.switch { margin-top: 1.5rem; text-align: center; color: var(--muted); }
+.switch {
+    margin-top: 1.5rem;
+    text-align: center;
+    color: var(--muted);
+}
 
 /* ---------- Home placeholder ---------- */
-.shell { max-width: 760px; margin: 0 auto; padding: 3rem 1.5rem; }
-.shell h1 { margin-top: 0; }
+.shell {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+}
+.shell h1 {
+    margin-top: 0;
+}
 .chip {
-  display: inline-block;
-  padding: .15rem .6rem;
-  border-radius: 99px;
-  background: var(--gold);
-  color: #12202b;
-  font-weight: 700;
-  font-size: .85rem;
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 99px;
+    background: var(--gold);
+    color: #12202b;
+    font-weight: 700;
+    font-size: 0.85rem;
 }
 
 @media (max-width: 800px) {
-  .auth { grid-template-columns: 1fr; }
-  .auth-brand { padding: 2rem 1.5rem; gap: 1.25rem; border-right: 0; border-bottom: 6px solid var(--gold); }
-  .ticket { display: none; }
+    .auth {
+        grid-template-columns: 1fr;
+    }
+    .auth-brand {
+        padding: 2rem 1.5rem;
+        gap: 1.25rem;
+        border-right: 0;
+        border-bottom: 6px solid var(--gold);
+    }
+    .ticket {
+        display: none;
+    }
+}
+
+
+/* ---------- Base Tab Styling ---------- */
+.event-tabs a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* Hover style for all links */
+.event-tabs a:hover {
+    background: var(--paper);
+    color: var(--ink);
+}
+
+/* ---------- Unique Colors for Active Tabs ---------- */
+
+/* 1. All Tab (Keeps your maroon design) */
+.event-tabs a[href*="view=all"][aria-current="page"] {
+    background: #ffb742;
+    color: #000000;
+}
+
+/* 2. Approved Tab (Green) */
+.event-tabs a[href*="view=approved"][aria-current="page"] {
+    background: #15803d; /* Smooth dark emerald green */
+    color: #ffffff;
+}
+
+/* 3. Pending Tab (Yellow/Orange amber tint) */
+.event-tabs a[href*="view=pending"][aria-current="page"] {
+    background: #b45309; /* Deep amber to stay readable on dark theme layout */
+    color: #ffffff;
+}
+
+/* 4. Declined Tab (Crimson/Red) */
+.event-tabs a[href*="view=declined"][aria-current="page"] {
+    background: #b91c1c; /* Crimson solid red */
+    color: #ffffff;
 }

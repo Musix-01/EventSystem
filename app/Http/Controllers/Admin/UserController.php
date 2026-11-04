@@ -63,8 +63,8 @@ class UserController extends Controller
         $user->update(['role' => $data['role']]);
 
         $message = $data['role'] === Role::Officer->value
-            ? "{$user->name} is now a {$user->organization->value} officer."
-            : "{$user->name} is a regular student again.";
+            ? "{$user->name} is now a/an {$user->organization->value} officer."
+            : "{$user->name} has been removed.";
 
         return back()->with('status', $message);
     }

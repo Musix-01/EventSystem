@@ -1,82 +1,80 @@
 @extends('layouts.app')
 @section('title', 'Dashboard')
+@section('topbar-title', 'Dashboard')
 
 @section('content')
-    <div class="page-head">
-        <div>
-            <h1>Hi, {{ \Illuminate\Support\Str::words($user->name, 1, '') }}</h1>
-            <p>{{ $user->organization->value }} officer, {{ $user->student_number }}</p>
-        </div>
-        <a class="btn btn-inline" href="{{ route('officer.events.create') }}">Request an event</a>
-    </div>
+<div class="dash">
+    <div class="dash-main">
+        <p class="greet">Hi, {{ \Illuminate\Support\Str::words($user->name, 1, '') }}. {{ $user->organization->value }} officer, {{ $user->student_number }}.</p>
 
-    <div class="stats">
-        <a class="stat @if ($stats['pending'] > 0) alert @endif" href="{{ route('officer.events.index') }}">
-            <strong>{{ $stats['pending'] }}</strong><span>Waiting for admin</span>
-        </a>
-        <div class="stat"><strong>{{ $stats['upcoming'] }}</strong><span>Approved upcoming</span></div>
-        <div class="stat"><strong>{{ $stats['registered'] }}</strong><span>Students registered</span></div>
-        <div class="stat @if ($stats['declined'] > 0) alert @endif">
-            <strong>{{ $stats['declined'] }}</strong><span>Declined this month</span>
+        <div class="stat-row">
+            @include('partials.stat-card', ['icon' => 'check', 'tone' => 'gold', 'title' => 'Waiting for admin', 'value' => $stats['pending'], 'caption' => 'requests', 'href' => route('officer.events.index')])
+            @include('partials.stat-card', ['icon' => 'calendar', 'tone' => 'maroon', 'title' => 'Approved events', 'value' => $stats['upcoming'], 'caption' => 'coming up', 'href' => route('officer.events.index')])
+            @include('partials.stat-card', ['icon' => 'users', 'tone' => 'green', 'title' => 'Students registered', 'value' => $stats['registered'], 'caption' => 'in upcoming events', 'href' => route('registrations.index')])
         </div>
-    </div>
 
-    @if ($approved->isNotEmpty())
-        <div class="section-head"><h2>Recently approved</h2></div>
-        @foreach ($approved as $event)
-            <article class="event">
-                <div class="event-top">
-                    <div>
-                        <h3>{{ $event->title }}</h3>
-                        <p class="meta">Approved {{ $event->reviewed_at->diffForHumans() }}. {{ $event->starts_at->format('M j, g:i A') }} at {{ $event->venue }}</p>
-                    </div>
-                    <div><a class="btn btn-sm btn-inline" href="{{ route('attendance.show', $event) }}">See attendees</a></div>
+        <section class="panel">
+            <div class="panel-head"><h2>Ongoing event</h2><a href="{{ route('officer.events.index') }}">Manage events</a></div>
+            @if ($ongoing->isEmpty())
+                <p class="muted-note">None of your events is happening right now.</p>
+            @else
+                <div class="ecards">
+                    @foreach ($ongoing as $event)
+                        @include('partials.event-card', [
+                            'event' => $event, 'variant' => 'ongoing', 'href' => route('attendance.show', $event),
+                            'line' => $event->attended_count . ' checked in of ' . $event->registrations_count . '. Open to scan.',
+                        ])
+                    @endforeach
                 </div>
-            </article>
-        @endforeach
-    @endif
+            @endif
+        </section>
 
-    @if ($declined->isNotEmpty())
-        <div class="section-head"><h2>Needs your attention</h2></div>
-        @foreach ($declined as $event)
-            <article class="event">
-                <h3>{{ $event->title }}</h3>
-                <p class="meta">Declined {{ $event->reviewed_at->format('M j') }}, was set for {{ $event->starts_at->format('M j, g:i A') }}</p>
-                <div class="reason"><strong>Reason:</strong> {{ $event->decline_reason }}</div>
-            </article>
-        @endforeach
-    @endif
+        <section class="panel">
+            <div class="panel-head"><h2>Upcoming event</h2><a href="{{ route('officer.events.index') }}">All {{ $user->organization->value }} events</a></div>
+            @if ($upcoming->isEmpty())
+                <p class="muted-note">No approved events coming up. <a href="{{ route('officer.events.create') }}">Request one</a>.</p>
+            @else
+                <div class="ecards">
+                    @foreach ($upcoming as $event)
+                        @include('partials.event-card', [
+                            'event' => $event, 'variant' => 'upcoming', 'href' => route('attendance.show', $event),
+                            'line' => $event->registrations_count . ($event->capacity ? ' / ' . $event->capacity : '') . ' registered',
+                        ])
+                    @endforeach
+                </div>
+            @endif
+        </section>
 
-    <div class="section-head">
-        <h2>{{ $user->organization->value }} upcoming events</h2>
-        <a href="{{ route('officer.events.index') }}">Manage events</a>
+        @if ($declined->isNotEmpty())
+            <section class="panel">
+                <div class="panel-head"><h2>Needs your attention</h2></div>
+                @foreach ($declined as $event)
+                    <article class="event">
+                        <h3>{{ $event->title }}</h3>
+                        <p class="meta">Declined {{ $event->reviewed_at->format('M j') }}, was set for {{ $event->starts_at->format('M j, g:i A') }}</p>
+                        <div class="reason"><strong>Reason:</strong> {{ $event->decline_reason }}</div>
+                    </article>
+                @endforeach
+            </section>
+        @endif
+
+        @if ($joined->isNotEmpty())
+            <section class="panel">
+                <div class="panel-head"><h2>Events you joined</h2><a href="{{ route('registrations.index') }}">My events</a></div>
+                <div class="ecards">
+                    @foreach ($joined as $event)
+                        @include('partials.event-card', [
+                            'event' => $event, 'variant' => 'upcoming', 'href' => route('events.show', $event),
+                            'line' => 'Your code: ' . $event->my_code,
+                        ])
+                    @endforeach
+                </div>
+            </section>
+        @endif
     </div>
 
-    @if ($orgEvents->isEmpty())
-        <p class="note-empty">No approved events yet. Request one and the admin will review it.</p>
-    @else
-        <div class="table-wrap">
-            <table class="table">
-                <thead>
-                    <tr><th>Event</th><th>When</th><th>Venue</th><th class="num">Registered</th><th class="num">Checked in</th><th></th></tr>
-                </thead>
-                <tbody>
-                @foreach ($orgEvents as $event)
-                    <tr>
-                        <td><a href="{{ route('events.show', $event) }}">{{ $event->title }}</a>
-                            @if ($event->starts_at->isPast()) <span class="tag tag-live">Happening now</span> @endif</td>
-                        <td>{{ $event->starts_at->format('M j, g:i A') }}</td>
-                        <td>{{ $event->venue }}</td>
-                        <td class="num">{{ $event->registrations_count }}@if ($event->capacity) / {{ $event->capacity }}@endif</td>
-                        <td class="num">{{ $event->attended_count }}</td>
-                        <td><a href="{{ route('attendance.show', $event) }}">Attendees</a></td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
-
-    <div class="section-head"><h2>Events you joined</h2></div>
-    @include('dashboard._my-events')
+    <aside class="dash-side">
+        @include('partials.activity', ['items' => $activity])
+    </aside>
+</div>
 @endsection

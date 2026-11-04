@@ -4,6 +4,7 @@ namespace App\Enums;
 
 enum Organization: string
 {
+    case SC  = 'STUDENT COUNCIL';
     case ACAP  = 'ACAP';
     case AECES = 'AECES';
     case ELITE = 'ELITE';
