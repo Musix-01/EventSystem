@@ -3,9 +3,9 @@
 
 @section('content')
     <h2>Create your account</h2>
-    <p class="sub">It takes a minute. You can join events right after.</p>
+    <p class="sub">Just a few steps to get started.</p>
 
-    <form method="POST" action="{{ url('/register') }}" novalidate>
+    <form method="POST" action="{{ url('/register') }}" enctype="multipart/form-data" novalidate>
         @csrf
 
         <div class="field {{ $errors->has('name') ? 'has-error' : '' }}">
@@ -18,12 +18,12 @@
         <div class="field {{ $errors->has('student_number') ? 'has-error' : '' }}">
             <label for="student_number">Student number</label>
             <input type="text" id="student_number" name="student_number"
-                   value="{{ old('student_number') }}"placeholder="2024-00123-SR-0"
+                   value="{{ old('student_number') }}" placeholder="2024-00123-SR-0"
                    autocomplete="username" required>
             @error('student_number')
                 <div class="error">{{ $message }}</div>
             @else
-                <div class="hint">Please enter the correct format.</div>
+                <div class="hint">Please follow the proper format (2024-00123-SR-0).</div>
             @enderror
         </div>
 
@@ -38,6 +38,16 @@
                 @endforeach
             </select>
             @error('organization') <div class="error">{{ $message }}</div> @enderror
+        </div>
+
+        <div class="field {{ $errors->has('cor') ? 'has-error' : '' }}">
+            <label for="cor">Certificate of Registration (COR)</label>
+            <input type="file" id="cor" name="cor" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" required>
+            @error('cor')
+                <div class="error">{{ $message }}</div>
+            @else
+                <div class="hint">Please upload your Certificate of Registration (COR). PDF, JPG or PNG, up to 5 MB.</div>
+            @enderror
         </div>
 
         <div class="field {{ $errors->has('password') ? 'has-error' : '' }}">
@@ -56,8 +66,8 @@
                    autocomplete="new-password" required>
         </div>
 
-        <button type="submit" class="btn">Create an account</button>
+        <button type="submit" class="btn">Create account</button>
     </form>
 
-    <p class="switch">Already registered? <a href="{{ route('login') }}">Log in</a></p>
+    <p class="switch">Already registered? <a href="{{ route('login', ['as' => 'student']) }}">Log in</a></p>
 @endsection

@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('css/student.css') }}">
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/extra.css') }}">
 </head>
 <body>
 @php($user = auth()->user())
@@ -22,20 +23,26 @@
             <a href="{{ route('dashboard') }}" @if(request()->routeIs('dashboard')) aria-current="page" @endif>Dashboard</a>
             <a href="{{ route('events.index') }}" @if(request()->routeIs('events.index', 'events.show')) aria-current="page" @endif>Events</a>
 
-            @unless ($user->isAdmin())
+            @unless ($user->isStaff())
                 <a href="{{ route('registrations.index') }}" @if(request()->routeIs('registrations.*')) aria-current="page" @endif>My events</a>
             @endunless
 
             @if ($user->isOfficer())
-                <a href="{{ route('officer.events.index') }}" @if(request()->routeIs('officer.events.*')) aria-current="page" @endif>My org's events</a>
+                <a href="{{ route('officer.events.index') }}" @if(request()->routeIs('officer.events.*', 'attendance.*', 'letters.*')) aria-current="page" @endif>My org's events</a>
             @endif
 
             @if ($user->isAdmin())
                 @php($pendingCount = \App\Models\Event::where('status', 'pending')->count())
+                @php($unreadLetters = \App\Models\Letter::whereNull('read_at')->count())
                 <a href="{{ route('admin.events.index') }}" @if(request()->routeIs('admin.events.*')) aria-current="page" @endif>
                     Event requests
                     @if ($pendingCount > 0)<span class="badge">{{ $pendingCount }}</span>@endif
                 </a>
+                <a href="{{ route('admin.letters.index') }}" @if(request()->routeIs('admin.letters.*', 'letters.*')) aria-current="page" @endif>
+                    Letters
+                    @if ($unreadLetters > 0)<span class="badge">{{ $unreadLetters }}</span>@endif
+                </a>
+                <a href="{{ route('admin.users.index') }}" @if(request()->routeIs('admin.users.*')) aria-current="page" @endif>Users</a>
             @endif
         </nav>
 

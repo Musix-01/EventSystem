@@ -34,6 +34,17 @@
                 <div class="reason"><strong>Why it was declined:</strong> {{ $event->decline_reason }}</div>
             @endif
 
+            <div class="event-actions">
+                @if (in_array($event->status->value, ['approved', 'completed'], true))
+                    <a class="btn btn-sm btn-inline" href="{{ route('attendance.show', $event) }}">
+                        Attendees ({{ $event->registrations_count }})
+                    </a>
+                @endif
+                @if ($event->letter)
+                    <a class="btn btn-sm btn-quiet" href="{{ route('letters.show', $event->letter) }}">View letter</a>
+                @endif
+            </div>
+
             @if (in_array($event->status->value, ['pending', 'approved'], true))
                 <div class="event-actions">
                     <form method="POST" action="{{ route('officer.events.cancel', $event) }}"

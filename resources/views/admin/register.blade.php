@@ -3,7 +3,7 @@
 
 @section('content')
     <h2>Create your account</h2>
-    <p class="sub">It takes a minute. You can join events right after.</p>
+    <p class="sub">Just a few steps to get started.</p>
 
     <form method="POST" action="{{ url('/register') }}" novalidate>
         @csrf

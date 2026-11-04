@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\EventStatus;
 use App\Enums\Role;
 use App\Models\Event;
+use App\Models\Letter;
 use App\Models\Registration;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ class DashboardController extends Controller
 
         return match ($user->role) {
             Role::Admin   => $this->admin(),
+            Role::Faculty => $this->faculty(),
             Role::Officer => $this->officer($user),
             Role::Student => $this->student($user),
         };
@@ -85,9 +87,18 @@ class DashboardController extends Controller
             ->limit(3)
             ->get();
 
+        $approved = Event::query()
+            ->where('organization', $org)
+            ->where('status', EventStatus::Approved->value)
+            ->where('ends_at', '>=', now())
+            ->where('reviewed_at', '>=', now()->subDays(7))
+            ->latest('reviewed_at')
+            ->limit(3)
+            ->get();
+
         $upcoming = $this->upcomingRegistrations($user);
 
-        return view('dashboard.officer', compact('user', 'stats', 'orgEvents', 'declined', 'upcoming'));
+        return view('dashboard.officer', compact('user', 'stats', 'orgEvents', 'declined', 'approved', 'upcoming'));
     }
 
     private function admin(): View
@@ -96,6 +107,7 @@ class DashboardController extends Controller
             'pending'  => Event::where('status', EventStatus::Pending->value)->count(),
             'today'    => Event::where('status', EventStatus::Approved->value)->whereDate('starts_at', today())->count(),
             'upcoming' => Event::where('status', EventStatus::Approved->value)->where('ends_at', '>=', now())->count(),
+            'letters'  => Letter::whereNull('read_at')->count(),
             'students' => User::where('role', Role::Student->value)->count(),
             'officers' => User::where('role', Role::Officer->value)->count(),
         ];
@@ -116,7 +128,42 @@ class DashboardController extends Controller
             ->orderBy('starts_at')
             ->get();
 
-        return view('dashboard.admin', compact('stats', 'pending', 'schedule'));
+        $newAccounts = User::query()
+            ->where('role', Role::Student->value)
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        return view('dashboard.admin', compact('stats', 'pending', 'schedule', 'newAccounts'));
+    }
+
+    private function faculty(): View
+    {
+        $base = fn () => Event::query()
+            ->where('status', EventStatus::Approved->value)
+            ->withCount(['registrations', 'registrations as attended_count' => fn ($q) => $q->whereNotNull('attended_at')]);
+
+        // Coming up in the next 30 days
+        $upcoming = $base()
+            ->where('ends_at', '>=', now())
+            ->where('starts_at', '<=', now()->addDays(30)->endOfDay())
+            ->orderBy('starts_at')
+            ->get();
+
+        // Finished in the last 14 days, so attendance can still be printed
+        $recent = $base()
+            ->where('ends_at', '<', now())
+            ->where('ends_at', '>=', now()->subDays(14))
+            ->orderByDesc('ends_at')
+            ->get();
+
+        $stats = [
+            'today'    => Event::where('status', EventStatus::Approved->value)->whereDate('starts_at', today())->count(),
+            'upcoming' => $upcoming->count(),
+            'recent'   => $recent->count(),
+        ];
+
+        return view('dashboard.faculty', compact('stats', 'upcoming', 'recent'));
     }
 
     /** The user's joined events that have not ended yet, soonest first. */

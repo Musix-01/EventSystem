@@ -1,0 +1,61 @@
+/* Role picker: "Hello! Who is logging in?" */
+.welcome-page { 
+  background:   #32161D; color: #fff; min-height: 100vh; position: relative; overflow: hidden; }
+.welcome-page::before {
+  content: "";
+  position: absolute;
+  top: -180px; left: -180px;
+  width: 460px; height: 460px;
+  border-radius: 50%;
+  border: 56px solid rgba(245, 184, 0, .14);
+}
+.welcome-page::after {
+  content: "";
+  position: absolute;
+  right: -120px; bottom: -120px;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  border: 40px solid rgba(255, 255, 255, .06);
+}
+
+.welcome {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.mark { font-size: 4.5rem; font-weight: 800; line-height: 1; letter-spacing: -.02em; margin-bottom: .75rem; }
+.mark .e { color: var(--gold); }
+
+.welcome h1 { margin: 0; font-size: 1.6rem; }
+.lead { margin: .35rem 0 2rem; opacity: .85; }
+
+.choices { display: grid; gap: .85rem; }
+.choice {
+  display: block;
+  text-align: left;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  color: #241416;
+  border-radius: 10px;
+  border-left: 8px solid var(--gold);
+  text-decoration: none;
+  font-weight: 400;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.choice strong { display: block; font-size: 1.15rem; }
+.choice span { color: #6b5b5d; font-size: .92rem; }
+.choice:hover { transform: translateX(4px); box-shadow: 0 6px 18px rgba(0, 0, 0, .25); }
+.choice:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+.admin-link { margin-top: 2rem; opacity: .85; }
+.admin-link a { color: var(--gold); }
+
+@media (prefers-reduced-motion: reduce) { .choice { transition: none; } .choice:hover { transform: none; } }

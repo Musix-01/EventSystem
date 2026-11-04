@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Event extends Model
 {
@@ -40,6 +41,11 @@ class Event extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
+    public function letter(): HasOne
+    {
+        return $this->hasOne(Letter::class);
+    }
+
     public function registrations(): HasMany
     {
         return $this->hasMany(Registration::class);
@@ -53,7 +59,7 @@ class Event extends Model
     /** Events a user is allowed to see in lists: open events plus their own org's. */
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        if ($user->isAdmin()) {
+        if ($user->isStaff()) {
             return $query;
         }
 
@@ -65,7 +71,7 @@ class Event extends Model
 
     public function isVisibleTo(User $user): bool
     {
-        if ($user->isAdmin()) {
+        if ($user->isStaff()) {
             return true;
         }
 
@@ -97,8 +103,8 @@ class Event extends Model
     /** Null means the user can join. Otherwise the message explains why not. */
     public function joinBlockedReason(User $user): ?string
     {
-        if ($user->isAdmin()) {
-            return 'Admins monitor events but do not join them.';
+        if ($user->isStaff()) {
+            return 'Admins and faculty monitor events but do not join them.';
         }
         if ($this->status !== EventStatus::Approved) {
             return 'This event is not open for registration.';

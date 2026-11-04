@@ -5,11 +5,11 @@
     <div class="page-head">
         <div>
             <h1>Request an event</h1>
-            <p>Hosted by {{ auth()->user()->organization->value }}</p>
+            <p>Hosted by {{ auth()->user()->organization->value }}. The request goes to the PUP admin together with an official letter.</p>
         </div>
     </div>
 
-    <form class="form-card" method="POST" action="{{ route('officer.events.store') }}" novalidate>
+    <form class="form-card" method="POST" action="{{ route('officer.events.store') }}" enctype="multipart/form-data" novalidate>
         @csrf
 
         <div class="field {{ $errors->has('title') ? 'has-error' : '' }}">
@@ -60,6 +60,22 @@
             </div>
         </div>
 
-        <button type="submit" class="btn">Send request</button>
+        <div class="field {{ $errors->has('purpose') ? 'has-error' : '' }}">
+            <label for="purpose">Purpose of the event (goes into the request letter)</label>
+            <textarea id="purpose" name="purpose" rows="5" required>{{ old('purpose') }}</textarea>
+            @error('purpose') <div class="error">{{ $message }}</div> @enderror
+        </div>
+
+        <div class="field {{ $errors->has('letter_file') ? 'has-error' : '' }}">
+            <label for="letter_file">Signed letter (optional)</label>
+            <input type="file" id="letter_file" name="letter_file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png">
+            @error('letter_file')
+                <div class="error">{{ $message }}</div>
+            @else
+                <div class="hint">Upload a scan if your adviser already signed one. PDF, JPG or PNG, up to 5 MB.</div>
+            @enderror
+        </div>
+
+        <button type="submit" class="btn">Send request and letter</button>
     </form>
 @endsection

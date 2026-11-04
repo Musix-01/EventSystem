@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -9,28 +10,91 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
-/** Login for students and student org officers (student number + password). */
+/**
+ * The welcome page asks "who is logging in?", then each choice opens this login.
+ *  - student, officer: sign in with a student number
+ *  - faculty (and PUP office admins): sign in with an email
+ * The account's role must match the option picked.
+ */
 class LoginController extends Controller
 {
-    public function create(): View
+    public static function portals(): array
     {
-        return view('auth.login');
+        return [
+            'student' => [
+                'roles' => [Role::Student],
+                'by'    => 'student_number',
+                'title' => 'Student',
+                'hint'  => 'Join events and get your check-in code',
+                'brand' => 'Join the events your org is hosting.',
+            ],
+            'officer' => [
+                'roles' => [Role::Officer],
+                'by'    => 'student_number',
+                'title' => 'Organization officer',
+                'hint'  => 'Request events and manage attendance',
+                'brand' => 'Request events and keep track of who showed up.',
+            ],
+            'faculty' => [
+                'roles' => [Role::Faculty, Role::Admin],   // PUP office admins sign in here too
+                'by'    => 'email',
+                'title' => 'Faculty',
+                'hint'  => 'Faculty and PUP office: events and attendance',
+                'brand' => 'Keep track of campus events and attendance.',
+            ],
+        ];
+    }
+
+    public function create(Request $request): View|RedirectResponse
+    {
+        $key = (string) $request->query('as', '');
+
+        if (! isset(self::portals()[$key])) {
+            return redirect()->route('welcome');
+        }
+
+        return view('auth.login', ['as' => $key, 'portal' => self::portals()[$key]]);
     }
 
     public function store(Request $request): RedirectResponse
     {
-        $request->merge([
-            'student_number' => strtoupper(trim($request->input('student_number', ''))),
+        $portals = self::portals();
+        $key     = (string) $request->input('as', '');
+
+        if (! isset($portals[$key])) {
+            return redirect()->route('welcome');
+        }
+
+        $portal = $portals[$key];
+
+        $data = $request->validate([
+            'login'    => ['required', 'string'],
+            'password' => ['required', 'string'],
         ]);
 
-        $credentials = $request->validate([
-            'student_number' => ['required', 'string'],
-            'password'       => ['required', 'string'],
-        ]);
+        $login = trim($data['login']);
+
+        $credentials = $portal['by'] === 'email'
+            ? ['email' => strtolower($login), 'password' => $data['password']]
+            : ['student_number' => strtoupper($login), 'password' => $data['password']];
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             throw ValidationException::withMessages([
-                'student_number' => 'Student number or password is incorrect.',
+                'login' => $portal['by'] === 'email'
+                    ? 'Email or password is incorrect.'
+                    : 'Student number or password is incorrect.',
+            ]);
+        }
+
+        // Right password, but picked the wrong option (a student choosing "Faculty", an officer choosing "Student", ...)
+        $user = Auth::user();
+
+        if (! in_array($user->role, $portal['roles'], true)) {
+            $actual = collect($portals)->first(fn ($p) => in_array($user->role, $p['roles'], true))['title'];
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'login' => "This account is registered as: {$actual}. Go back and choose that option to sign in.",
             ]);
         }
 
@@ -38,15 +102,13 @@ class LoginController extends Controller
 
         return redirect()->intended(route('dashboard'));
     }
-    /** Shared by both login pages. Sends admins back to the admin login. */
+
     public function destroy(Request $request): RedirectResponse
     {
-        $wasAdmin = (bool) $request->user()?->isAdmin();
-
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route($wasAdmin ? 'admin.login' : 'login');
+        return redirect()->route('welcome');
     }
 }

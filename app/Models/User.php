@@ -20,6 +20,7 @@ class User extends Authenticatable
         'organization',
         'role',
         'password',
+        'cor_path',
     ];
 
     protected $hidden = [
@@ -48,12 +49,27 @@ class User extends Authenticatable
             return 'Admin';
         }
 
+        if ($this->isFaculty()) {
+            return 'Faculty';
+        }
+
         return $this->organization->value . ', ' . $this->role->label();
     }
 
     public function isAdmin(): bool
     {
         return $this->role === Role::Admin;
+    }
+
+    public function isFaculty(): bool
+    {
+        return $this->role === Role::Faculty;
+    }
+
+    /** Admin and faculty belong to no organization and never join events. They only monitor. */
+    public function isStaff(): bool
+    {
+        return $this->isAdmin() || $this->isFaculty();
     }
 
     public function isOfficer(): bool

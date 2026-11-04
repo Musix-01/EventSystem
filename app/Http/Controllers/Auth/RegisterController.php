@@ -24,7 +24,7 @@ class RegisterController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        // Normalize before validating so "202400123-sr-0" and "202400123-SR-0" are the same.
+        // Normalize before validating so "2024-00123-sr-0" and "2024-00123-SR-0" are the same.
         $request->merge([
             'student_number' => strtoupper(trim($request->input('student_number', ''))),
         ]);
@@ -33,18 +33,27 @@ class RegisterController extends Controller
             'name'           => ['required', 'string', 'max:255'],
             'student_number' => ['required', 'regex:/^\d{4}-\d{5}-[A-Z]{2}-\d$/', 'unique:users,student_number'],
             'organization'   => ['required', Rule::in(Organization::values())],
+            'cor'            => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'password'       => ['required', 'confirmed', Password::min(8)],
         ], [
             'student_number.regex'  => 'Use the format 2024-00123-SR-0.',
             'student_number.unique' => 'This student number is already registered.',
+            'cor.required'          => 'Upload your Certificate of Registration (COR).',
+            'cor.mimes'             => 'The COR must be a PDF, JPG or PNG file.',
+            'cor.max'               => 'The COR must be 5 MB or smaller.',
+            'cor.uploaded'          => 'The COR could not be uploaded. Try a smaller file (up to 5 MB).',
         ]);
+
+        // Private disk: the file is not reachable by URL, only through an admin-only route.
+        $corPath = $request->file('cor')->store('cor', 'local');
 
         $user = User::create([
             'name'           => $data['name'],
             'student_number' => $data['student_number'],
             'organization'   => $data['organization'],
-            'role'           => Role::Student->value, // everyone starts as a student; admins promote later
+            'role'           => Role::Student->value, // everyone starts as a student; the admin promotes officers
             'password'       => $data['password'],    // hashed by the model cast
+            'cor_path'       => $corPath,
         ]);
 
         Auth::login($user);

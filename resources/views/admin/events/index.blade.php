@@ -50,6 +50,15 @@
                 </div>
             @endif
 
+            @if ($event->letter)
+                <p class="meta" style="margin-top:.75rem">
+                    <a href="{{ route('letters.show', $event->letter) }}">Read request letter</a>
+                    @if ($event->letter->attachment_path)
+                        , <a href="{{ route('letters.attachment', $event->letter) }}" target="_blank" rel="noopener">signed copy</a>
+                    @endif
+                </p>
+            @endif
+
             @if ($event->reviewed_at)
                 <p class="meta" style="margin-top:.75rem">
                     Reviewed by {{ $event->reviewer?->name ?? 'a removed admin' }}

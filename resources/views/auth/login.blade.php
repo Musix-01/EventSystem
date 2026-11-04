@@ -1,26 +1,40 @@
 @extends('layouts.auth')
 @section('title', 'Log in')
 
+@section('brand')
+    <h1>{{ $portal['brand'] }}</h1>
+    <p>{{ $portal['hint'] }}.</p>
+@endsection
+
 @section('content')
     <h2>Log in</h2>
-    <p class="sub">Use your student number and password.</p>
+    <p class="sub">
+        @if ($portal['by'] === 'email') Use your PUP email and password.
+        @else Enter your student number and password. @endif
+    </p>
 
-    <form method="POST" action="{{ url('/login') }}" novalidate>
+    <form method="POST" action="{{ route('login') }}" novalidate>
         @csrf
+        <input type="hidden" name="as" value="{{ $as }}">
 
-        <div class="field {{ $errors->has('student_number') ? 'has-error' : '' }}">
-            <label for="student_number">Student number</label>
-            <input type="text" id="student_number" name="student_number"
-                   value="{{ old('student_number') }}" placeholder="2024-00123-SR-0"
-                   autocomplete="username" autofocus required>
-            @error('student_number') <div class="error">{{ $message }}</div> @enderror
+        <div class="field {{ $errors->has('login') ? 'has-error' : '' }}">
+            @if ($portal['by'] === 'email')
+                <label for="login">PUP email</label>
+                <input type="email" id="login" name="login" value="{{ old('login') }}"
+                       placeholder="name@pup.edu.ph" autocomplete="username" autofocus required>
+            @else
+                <label for="login">Student number</label>
+                <input type="text" id="login" name="login" value="{{ old('login') }}"
+                       placeholder="2024-00123-SR-0" autocomplete="username" autofocus required>
+            @endif
+            @error('login') <div class="error">{{ $message }}</div> @enderror
         </div>
 
-        <div class="field {{ $errors->has('password') ? 'has-error' : '' }}">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" autocomplete="current-password" required>
-            @error('password') <div class="error">{{ $message }}</div> @enderror
-        </div>
+            <div class="field {{ $errors->has('password') ? 'has-error' : '' }}">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" autocomplete="current-password" required>
+                @error('password') <div class="error">{{ $message }}</div> @enderror
+            </div>
 
         <label class="check">
             <input type="checkbox" name="remember" value="1"> Keep me logged in
@@ -29,5 +43,10 @@
         <button type="submit" class="btn">Log in</button>
     </form>
 
-    <p class="switch">No account yet? <a href="{{ route('register') }}">Create one</a></p>
+    @if ($as === 'student')
+        <p class="switch">No account yet? <a href="{{ route('register') }}">Create one</a></p>
+    @elseif ($as === 'officer')
+        <p class="switch">No account yet? <a href="{{ route('register') }}">Create one</a></p>
+    @elseif ($as === 'faculty')
+    @endif
 @endsection

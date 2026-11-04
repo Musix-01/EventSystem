@@ -21,6 +21,21 @@
         </div>
     </div>
 
+    @if ($approved->isNotEmpty())
+        <div class="section-head"><h2>Recently approved</h2></div>
+        @foreach ($approved as $event)
+            <article class="event">
+                <div class="event-top">
+                    <div>
+                        <h3>{{ $event->title }}</h3>
+                        <p class="meta">Approved {{ $event->reviewed_at->diffForHumans() }}. {{ $event->starts_at->format('M j, g:i A') }} at {{ $event->venue }}</p>
+                    </div>
+                    <div><a class="btn btn-sm btn-inline" href="{{ route('attendance.show', $event) }}">See attendees</a></div>
+                </div>
+            </article>
+        @endforeach
+    @endif
+
     @if ($declined->isNotEmpty())
         <div class="section-head"><h2>Needs your attention</h2></div>
         @foreach ($declined as $event)
@@ -43,7 +58,7 @@
         <div class="table-wrap">
             <table class="table">
                 <thead>
-                    <tr><th>Event</th><th>When</th><th>Venue</th><th class="num">Registered</th><th class="num">Checked in</th></tr>
+                    <tr><th>Event</th><th>When</th><th>Venue</th><th class="num">Registered</th><th class="num">Checked in</th><th></th></tr>
                 </thead>
                 <tbody>
                 @foreach ($orgEvents as $event)
@@ -54,6 +69,7 @@
                         <td>{{ $event->venue }}</td>
                         <td class="num">{{ $event->registrations_count }}@if ($event->capacity) / {{ $event->capacity }}@endif</td>
                         <td class="num">{{ $event->attended_count }}</td>
+                        <td><a href="{{ route('attendance.show', $event) }}">Attendees</a></td>
                     </tr>
                 @endforeach
                 </tbody>

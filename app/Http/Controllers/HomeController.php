@@ -12,7 +12,7 @@ class HomeController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
-        $view = ($request->query('view') === 'mine' && ! $user->isAdmin()) ? 'mine' : 'all';
+        $view = ($request->query('view') === 'mine' && ! $user->isStaff()) ? 'mine' : 'all';
 
         $events = Event::query()
             ->where('status', EventStatus::Approved->value)

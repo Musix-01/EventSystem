@@ -6,8 +6,10 @@ use App\Enums\EventStatus;
 use App\Enums\EventVisibility;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Models\Letter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -18,7 +20,8 @@ class EventController extends Controller
     {
         $events = Event::query()
             ->where('organization', $request->user()->organization->value)
-            ->with('requester')
+            ->with(['requester', 'letter'])
+            ->withCount('registrations')
             ->orderByDesc('starts_at')
             ->get();
 
@@ -42,19 +45,34 @@ class EventController extends Controller
             'ends_at'     => ['required', 'date', 'after:starts_at'],
             'visibility'  => ['required', Rule::enum(EventVisibility::class)],
             'capacity'    => ['nullable', 'integer', 'min:1', 'max:100000'],
+            'purpose'     => ['required', 'string', 'min:20', 'max:3000'],
+            'letter_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
         ], [
-            'starts_at.after' => 'The start time must be in the future.',
-            'ends_at.after'   => 'The end time must be after the start time.',
+            'starts_at.after'    => 'The start time must be in the future.',
+            'ends_at.after'      => 'The end time must be after the start time.',
+            'purpose.required'   => 'Explain the purpose of the event. It goes into the request letter.',
+            'purpose.min'        => 'Write at least a couple of sentences for the request letter.',
+            'letter_file.mimes'  => 'The signed letter must be a PDF, JPG or PNG file.',
+            'letter_file.max'    => 'The signed letter must be 5 MB or smaller.',
         ]);
 
-        Event::create($data + [
-            'requested_by' => $request->user()->id,
-            'organization' => $request->user()->organization->value, // always the officer's own org
-            'status'       => EventStatus::Pending->value,
-        ]);
+        DB::transaction(function () use ($request, $data) {
+            $event = Event::create(collect($data)->except(['purpose', 'letter_file'])->all() + [
+                'requested_by' => $request->user()->id,
+                'organization' => $request->user()->organization->value, // always the officer's own org
+                'status'       => EventStatus::Pending->value,
+            ]);
+
+            Letter::create([
+                'event_id'        => $event->id,
+                'sent_by'         => $request->user()->id,
+                'purpose'         => $data['purpose'],
+                'attachment_path' => $request->file('letter_file')?->store('letters', 'local'),
+            ]);
+        });
 
         return redirect()->route('officer.events.index')
-            ->with('status', 'Event request sent. The admin will review it.');
+            ->with('status', 'Event request and letter sent. The admin will review them.');
     }
 
     /** Cancel a pending or approved event of your own org. */

@@ -6,14 +6,14 @@
         <div>
             <h1>Upcoming events</h1>
             <p>
-                @if (auth()->user()->isAdmin()) All approved events.
-                @else Open events and events from {{ auth()->user()->organization->value }}.
+                @if (auth()->user()->isStaff()) All approved events.
+                @else Events from {{ auth()->user()->organization->value }} and from other organizations.
                 @endif
             </p>
         </div>
     </div>
 
-    @unless (auth()->user()->isAdmin())
+    @unless (auth()->user()->isStaff())
         <nav class="tabs" aria-label="Filter events">
             <a href="{{ route('events.index') }}" @if ($view === 'all') aria-current="page" @endif>All events</a>
             <a href="{{ route('events.index', ['view' => 'mine']) }}" @if ($view === 'mine') aria-current="page" @endif>
