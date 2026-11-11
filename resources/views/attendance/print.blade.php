@@ -28,7 +28,7 @@
         <dl class="details" style="margin-left:0">
             <div><dt>Event</dt><dd>{{ $event->title }}</dd></div>
             <div><dt>Organization</dt><dd>{{ $event->organization->value }}</dd></div>
-            <div><dt>Date and time</dt><dd>{{ $event->starts_at->format('F j, Y, g:i A') }} to {{ $event->ends_at->format('g:i A') }}</dd></div>
+            <div><dt>Schedule</dt><dd>@include('partials.event-schedule', ['event' => $event])</dd></div>
             <div><dt>Venue</dt><dd>{{ $event->venue }}</dd></div>
             @if ($section)<div><dt>Section</dt><dd>{{ $section }}</dd></div>@endif
             <div><dt>Total</dt><dd>{{ $registrations->count() }} {{ $onlyPresent ? 'present' : 'registered' }}</dd></div>

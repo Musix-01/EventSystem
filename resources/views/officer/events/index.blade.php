@@ -23,9 +23,9 @@
                 <div>
                     <h3>{{ $event->title }}</h3>
                     <p class="meta">
-                        {{ $event->starts_at->format('M j, Y, g:i A') }} to {{ $event->ends_at->format('g:i A') }}
                         at {{ $event->venue }}
                     </p>
+                    @include('partials.event-schedule', ['event' => $event])
                     <p class="meta">
                         {{ $event->visibility->label() }}
                         @if ($event->capacity), limit {{ $event->capacity }} students @endif

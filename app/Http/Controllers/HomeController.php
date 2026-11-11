@@ -25,6 +25,7 @@ class HomeController extends Controller
                   ->orWhere('venue', 'like', "%{$q}%")
                   ->orWhere('organization', 'like', "%{$q}%");
             }))
+            ->with(['schedules'])
             ->withCount('registrations')
             ->orderBy('starts_at')
             ->get();

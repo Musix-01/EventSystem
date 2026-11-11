@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use App\Rules\StrongPassword;
 use Illuminate\View\View;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserController extends Controller
@@ -66,6 +67,22 @@ class UserController extends Controller
             : "{$user->name} has been removed.";
 
         return back()->with('status', $message);
+    }
+
+    public function destroy(Request $request, User $user): RedirectResponse
+    {
+        abort_if($user->isAdmin() || $user->is($request->user()), 403, 'Admin accounts and your own account cannot be deleted here.');
+
+        $corPath = $user->cor_path;
+        $user->delete();
+
+        if ($corPath && !Storage::disk('local')->delete($corPath)) {
+            report(new RuntimeException("Could not delete COR file [{$corPath}] for removed user [{$user->id}]."));
+
+            return back()->with('error', "{$user->name} was removed, but their COR file could not be deleted.");
+        }
+
+        return back()->with('status', "{$user->name} was removed.");
     }
 
     public function createFaculty(): View

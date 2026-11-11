@@ -17,8 +17,9 @@
                 <div>
                     <h3 style="margin:0"><a href="{{ route('events.show', $event) }}" style="color:inherit">{{ $event->title }}</a></h3>
                     <p class="meta">
-                        {{ $event->organization->value }}, {{ $event->starts_at->format('M j, Y, g:i A') }}, {{ $event->venue }}
+                        {{ $event->organization->value }}, {{ $event->venue }}
                     </p>
+                    @include('partials.event-schedule', ['event' => $event, 'compact' => true])
                 </div>
                 <div>
                     @if ($registration->hasAttended())

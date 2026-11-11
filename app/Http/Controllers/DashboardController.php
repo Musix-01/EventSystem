@@ -36,8 +36,7 @@ class DashboardController extends Controller
         // Happening right now, in events this student may join or already joined
         $ongoing = $this->approved()
             ->visibleTo($user)
-            ->where('starts_at', '<=', now())
-            ->where('ends_at', '>=', now())
+            ->happeningNow()
             ->withCount('registrations')
             ->orderBy('ends_at')
             ->limit(4)
@@ -45,7 +44,7 @@ class DashboardController extends Controller
 
         // Joined events that have not started yet, each with the student's own code
         $upcoming = $registrations
-            ->filter(fn (Registration $r) => $r->event->starts_at->isFuture())
+            ->filter(fn (Registration $r) => $r->event->nextSchedule() !== null)
             ->take(4)
             ->map(function (Registration $r) {
                 $event = $r->event;
@@ -98,14 +97,13 @@ class DashboardController extends Controller
         $own = fn () => $this->approved()->where('organization', $org)->withCount($this->attendanceCounts());
 
         $ongoing = $own()
-            ->where('starts_at', '<=', now())
-            ->where('ends_at', '>=', now())
+            ->happeningNow()
             ->orderBy('ends_at')
             ->limit(4)
             ->get();
 
         $upcoming = $own()
-            ->where('starts_at', '>', now())
+            ->hasUpcomingSchedule()
             ->orderBy('starts_at')
             ->limit(4)
             ->get();
@@ -113,11 +111,12 @@ class DashboardController extends Controller
 
         $stats = [
             'pending'    => Event::where('organization', $org)->where('status', EventStatus::Pending->value)->count(),
-            'upcoming'   => $this->approved()->where('organization', $org)->where('ends_at', '>=', now())->count(),
+            'upcoming'   => $this->approved()->where('organization', $org)->where('ends_at', '>=', now())->hasUpcomingSchedule()->count(),
             'registered' => Registration::whereHas('event', fn ($q) => $q
                                 ->where('organization', $org)
                                 ->where('status', EventStatus::Approved->value)
-                                ->where('ends_at', '>=', now()))->count(),
+                                ->where('ends_at', '>=', now())
+                                ->hasUpcomingSchedule())->count(),
             'declined'   => Event::where('organization', $org)->where('status', EventStatus::Declined->value)
                                 ->where('reviewed_at', '>=', now()->subDays(30))->count(),
         ];
@@ -171,16 +170,14 @@ class DashboardController extends Controller
     {
         $ongoing = $this->approved()
             ->withCount($this->attendanceCounts())
-            ->where('starts_at', '<=', now())
-            ->where('ends_at', '>=', now())
+            ->happeningNow()
             ->orderBy('ends_at')
             ->limit(4)
             ->get();
 
         $upcoming = $this->approved()
             ->withCount($this->attendanceCounts())
-            ->where('starts_at', '>', now())
-            ->where('starts_at', '<=', now()->addDays(7)->endOfDay())
+            ->hasUpcomingSchedule(now()->addDays(7))
             ->orderBy('starts_at')
             ->limit(4)
             ->get();
@@ -189,7 +186,7 @@ class DashboardController extends Controller
         $stats = [
             'pending'  => Event::where('status', EventStatus::Pending->value)->count(),
             'letters'  => Letter::whereNull('read_at')->count(),
-            'today'    => $this->approved()->whereDate('starts_at', today())->count(),
+            'today'    => $this->approved()->whereHas('schedules', fn ($q) => $q->whereDate('date', today()))->count(),
             'students' => User::where('role', Role::Student->value)->count(),
             'officers' => User::where('role', Role::Officer->value)->count(),
             'faculty'  => User::where('role', Role::Faculty->value)->count(),
@@ -197,7 +194,7 @@ class DashboardController extends Controller
 
         $pending = Event::query()
             ->where('status', EventStatus::Pending->value)
-            ->with(['requester', 'letter'])
+            ->with(['requester', 'letter', 'schedules'])
             ->orderBy('created_at')
             ->limit(5)
             ->get();
@@ -227,8 +224,7 @@ class DashboardController extends Controller
     {
         $ongoing = $this->approved()
             ->withCount($this->attendanceCounts())
-            ->where('starts_at', '<=', now())
-            ->where('ends_at', '>=', now())
+            ->happeningNow()
             ->orderBy('ends_at')
             ->limit(4)
             ->get();
@@ -236,8 +232,7 @@ class DashboardController extends Controller
         // Coming up in the next 30 days
         $upcoming = $this->approved()
             ->withCount($this->attendanceCounts())
-            ->where('starts_at', '>', now())
-            ->where('starts_at', '<=', now()->addDays(30)->endOfDay())
+            ->hasUpcomingSchedule(now()->addDays(30))
             ->orderBy('starts_at')
             ->limit(4)
             ->get();
@@ -252,8 +247,8 @@ class DashboardController extends Controller
             ->get();
 
         $stats = [
-            'today'    => $this->approved()->whereDate('starts_at', today())->count(),
-            'upcoming' => $this->approved()->where('ends_at', '>=', now())->where('starts_at', '<=', now()->addDays(30)->endOfDay())->count(),
+            'today'    => $this->approved()->whereHas('schedules', fn ($q) => $q->whereDate('date', today()))->count(),
+            'upcoming' => $this->approved()->where('ends_at', '>=', now())->hasUpcomingSchedule(now()->addDays(30))->count(),
             'recent'   => $recent->count(),
         ];
 
@@ -274,7 +269,7 @@ class DashboardController extends Controller
 
     private function approved()
     {
-        return Event::query()->where('status', EventStatus::Approved->value);
+        return Event::query()->with('schedules')->where('status', EventStatus::Approved->value);
     }
 
     private function attendanceCounts(): array
@@ -337,7 +332,7 @@ class DashboardController extends Controller
             ->whereHas('event', fn ($q) => $q
                 ->where('status', EventStatus::Approved->value)
                 ->where('ends_at', '>=', now()))
-            ->with('event')
+            ->with('event.schedules')
             ->get()
             ->sortBy(fn (Registration $r) => $r->event->starts_at)
             ->values();

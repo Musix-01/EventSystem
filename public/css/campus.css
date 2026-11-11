@@ -1,5 +1,5 @@
 :root {
-    --maroon: #800000;
+    --maroon: #6d0303;
     --maroon-dark: #5c0000;
     --gold: #f5b800;
     --accent: #800000;
@@ -16,7 +16,7 @@
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --maroon: #9b1c1c;
+        --maroon: #6d0303;
         --maroon-dark: #7a1414;
         --accent: #f5b800;
         --focus: #f5b800;
@@ -49,10 +49,19 @@ body {
 }
 
 a {
-    color: #d49f008d;;
+    color: #d49f00ac;;
     font-weight: 600;
     font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration-thickness: 0.8px;
 }
+/*a:hover {
+    text-decoration: underline;
+    color: var(--accent);
+    opacity: 0.8;
+    text-decoration-thickness: 0.8px;
+}*/
 
 /* ---------- Auth layout ---------- */
 .auth {
@@ -175,6 +184,7 @@ select {
     background: var(--surface);
     border: 1.5px solid var(--line);
     border-radius: 8px;
+    opacity: 0.9;
 }
 input:focus-visible,
 select:focus-visible,
@@ -286,26 +296,26 @@ a:focus-visible {
 
 /* ---------- Unique Colors for Active Tabs ---------- */
 
-/* 1. All Tab (Keeps your maroon design) */
+/* All */
 .event-tabs a[href*="view=all"][aria-current="page"] {
     background: #ffb742;
     color: #000000;
 }
 
-/* 2. Approved Tab (Green) */
+/* Approved */
 .event-tabs a[href*="view=approved"][aria-current="page"] {
     background: #15803d; /* Smooth dark emerald green */
     color: #ffffff;
 }
 
-/* 3. Pending Tab (Yellow/Orange amber tint) */
+/* Pending */
 .event-tabs a[href*="view=pending"][aria-current="page"] {
-    background: #b45309; /* Deep amber to stay readable on dark theme layout */
+    background: #b45309;
     color: #ffffff;
 }
 
-/* 4. Declined Tab (Crimson/Red) */
+/* Decline */
 .event-tabs a[href*="view=declined"][aria-current="page"] {
-    background: #b91c1c; /* Crimson solid red */
-    color: #ffffff;
+    background: #580000;
+    color: #cecece;
 }

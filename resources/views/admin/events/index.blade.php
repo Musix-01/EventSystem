@@ -29,9 +29,9 @@
                         ({{ $event->requester->student_number }})
                     </p>
                     <p class="meta">
-                        {{ $event->starts_at->format('M j, Y, g:i A') }} to {{ $event->ends_at->format('g:i A') }}
                         at {{ $event->venue }}
                     </p>
+                    @include('partials.event-schedule', ['event' => $event])
                     <p class="meta">
                         {{ $event->visibility->label() }}
                         @if ($event->capacity), limit {{ $event->capacity }} students @endif
@@ -43,10 +43,13 @@
             @if ($event->description) <p class="desc">{{ $event->description }}</p> @endif
 
             @if ($conflict)
+                @php($conflictEvent = $conflict->event)
                 <div class="warn">
-                    <strong>Venue clash:</strong> {{ $conflict->venue }} is already booked for
-                    “{{ $conflict->title }}” ({{ $conflict->organization->value }}),
-                    {{ $conflict->starts_at->format('M j, g:i A') }} to {{ $conflict->ends_at->format('g:i A') }}.
+                    <strong>Venue clash:</strong> {{ $conflictEvent->venue }} is already booked for
+                    “{{ $conflictEvent->title }}” ({{ $conflictEvent->organization->value }}),
+                    {{ $conflict->date->format('M j, Y') }},
+                    {{ \Illuminate\Support\Carbon::parse($conflict->start_time)->format('g:i A') }} to
+                    {{ \Illuminate\Support\Carbon::parse($conflict->end_time)->format('g:i A') }}.
                 </div>
             @endif
 

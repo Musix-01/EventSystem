@@ -51,8 +51,7 @@
         </p>
 
         <dl class="details">
-            <div><dt>Date</dt><dd>{{ $event->starts_at->format('l, F j, Y') }}</dd></div>
-            <div><dt>Time</dt><dd>{{ $event->starts_at->format('g:i A') }} to {{ $event->ends_at->format('g:i A') }}</dd></div>
+            <div><dt>Schedule</dt><dd>@include('partials.event-schedule', ['event' => $event])</dd></div>
             <div><dt>Venue</dt><dd>{{ $event->venue }}</dd></div>
             <div><dt>Participants</dt><dd>
                 {{ $event->visibility->label() }}@if ($event->capacity), up to {{ $event->capacity }} students @endif

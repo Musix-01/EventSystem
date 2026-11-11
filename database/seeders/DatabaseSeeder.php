@@ -11,9 +11,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Test accounts. Password for all: "password". Change before real use.
-
-        // Admin: PUP office. Signs in at /login with the PUP email.
+        // Admin, PUP office.
         User::create([
             'name'           => 'PUP Admin',
             'email'          => 'admin@pup.edu.ph',
@@ -23,7 +21,7 @@ class DatabaseSeeder extends Seeder
             'password'       => 'password',
         ]);
 
-        // Faculty: signs in with email at the Faculty option.
+        // Faculty
         User::create([
             'name'           => 'Test Faculty',
             'email'          => 'faculty@pup.edu.ph',
@@ -33,7 +31,7 @@ class DatabaseSeeder extends Seeder
             'password'       => 'password',
         ]);
 
-        // Student org leader: signs in with student number.
+        // Student org leader
         User::create([
             'name'           => 'Test ELITE Officer',
             'student_number' => '2024-00001-SR-0',

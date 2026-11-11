@@ -8,9 +8,9 @@
         <div>
             <h1>{{ $event->title }}</h1>
             <p>
-                {{ $event->organization->value }}, {{ $event->starts_at->format('l, M j, Y, g:i A') }} to {{ $event->ends_at->format('g:i A') }},
-                {{ $event->venue }}
+                {{ $event->organization->value }}, {{ $event->venue }}
             </p>
+            @include('partials.event-schedule', ['event' => $event])
         </div>
         <div class="cell-actions">
             <a href="{{ route('attendance.print', array_filter([$event, 'section' => $section])) }}" target="_blank">Print attendance sheet</a>

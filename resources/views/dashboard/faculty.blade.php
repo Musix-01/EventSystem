@@ -55,7 +55,7 @@
                         <tbody>
                         @foreach ($recent as $event)
                             <tr>
-                                <td>{{ $event->starts_at->format('D, M j') }}</td>
+                                <td>@include('partials.event-schedule', ['event' => $event, 'compact' => true])</td>
                                 <td>{{ $event->title }}<span class="sub">{{ $event->organization->value }}</span></td>
                                 <td>{{ $event->venue }}</td>
                                 <td class="num">{{ $event->registrations_count }}</td>

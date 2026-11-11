@@ -74,6 +74,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/users/faculty/create', [UserController::class, 'createFaculty'])->name('users.faculty.create');
             Route::post('/users/faculty', [UserController::class, 'storeFaculty'])->name('users.faculty.store');
             Route::patch('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.role');
+            Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
             Route::get('/users/{user}/cor', [UserController::class, 'cor'])->name('users.cor');
         });
 });

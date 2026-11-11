@@ -16,7 +16,7 @@ class RegistrationController extends Controller
     public function index(Request $request): View
     {
         $registrations = $request->user()->registrations()
-            ->with('event')
+            ->with('event.schedules')
             ->get()
             ->sortBy(fn (Registration $r) => $r->event->starts_at)
             ->values();

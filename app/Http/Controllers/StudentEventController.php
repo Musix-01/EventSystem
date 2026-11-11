@@ -14,7 +14,7 @@ class StudentEventController extends Controller
 
         abort_unless($event->isVisibleTo($user), 404);
 
-        $event->loadCount('registrations');
+        $event->load(['schedules'])->loadCount('registrations');
 
         $last = $user->registrations()->whereNotNull('year_section')->latest('id')->value('year_section');
         $prefill = ['program' => null, 'year' => null, 'section' => null];

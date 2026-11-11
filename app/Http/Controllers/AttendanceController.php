@@ -16,6 +16,7 @@ class AttendanceController extends Controller
     public function show(Request $request, Event $event): View
     {
         $this->authorizeView($request, $event);
+        $event->load('schedules');
 
         $all     = $this->registrations($event);
         $section = $this->sectionFilter($request, $all);
@@ -33,6 +34,7 @@ class AttendanceController extends Controller
     public function print(Request $request, Event $event): View
     {
         $this->authorizeView($request, $event);
+        $event->load('schedules');
 
         $onlyPresent = $request->query('only') === 'present';
 

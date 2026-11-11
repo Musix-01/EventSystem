@@ -39,7 +39,7 @@
                 <a class="card" href="{{ route('events.show', $event) }}">
                     <div><span class="org-chip">{{ $event->organization->value }}</span></div>
                     <h3>{{ $event->title }}</h3>
-                    <p class="when">{{ $event->starts_at->format('D, M j, g:i A') }}</p>
+                    <div class="when">@include('partials.event-schedule', ['event' => $event, 'compact' => true])</div>
                     <p class="where">{{ $event->venue }}</p>
                     <div class="tags">
                         @if (in_array($event->id, $joinedIds, true)) <span class="tag tag-joined">Joined</span> @endif

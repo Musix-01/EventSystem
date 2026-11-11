@@ -24,7 +24,8 @@
                         <td>
                             <a href="{{ route('letters.show', $letter) }}">{{ $letter->event->title }}</a>
                             @if ($letter->isUnread()) <span class="mark-new">NEW</span> @endif
-                            <span class="sub">{{ $letter->event->organization->value }}, {{ $letter->event->starts_at->format('M j, g:i A') }}</span>
+                            <span class="sub">{{ $letter->event->organization->value }}</span>
+                            @include('partials.event-schedule', ['event' => $letter->event, 'compact' => true])
                         </td>
                         <td>{{ $letter->sender->name }}<span class="sub">{{ $letter->sender->student_number }}</span></td>
                         <td><span class="status status-{{ $letter->event->status->value }}">{{ $letter->event->status->label() }}</span></td>

@@ -17,7 +17,7 @@ class EventReviewController extends Controller
 
         $events = Event::query()
             ->where('status', $current->value)
-            ->with(['requester', 'reviewer', 'letter'])
+            ->with(['requester', 'reviewer', 'letter', 'schedules'])
             ->orderBy('starts_at')
             ->get();
 

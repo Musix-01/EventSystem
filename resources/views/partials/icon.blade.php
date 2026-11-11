@@ -11,6 +11,7 @@
         'plus'     => '<path d="M12 5v14M5 12h14"/>',
         'clock'    => '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
         'chevron'  => '<path d="m6 9 6 6 6-6"/>',
+        'trash'    => '<path d="M3 6h18M8 6V4h8v2m3 0-.9 14H5.9L5 6m5 4v6m4-6v6"/>',
     ];
     $size = $size ?? 22;
 @endphp

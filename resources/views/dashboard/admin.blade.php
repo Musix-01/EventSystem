@@ -60,7 +60,10 @@
                             <tr>
                                 <td><a href="{{ route('admin.events.index') }}">{{ $event->title }}</a></td>
                                 <td>{{ $event->organization->value }}</td>
-                                <td>{{ $event->starts_at->format('M j, g:i A') }}<span class="sub">{{ $event->venue }}</span></td>
+                                <td>
+                                    @include('partials.event-schedule', ['event' => $event, 'compact' => true])
+                                    <span class="sub">{{ $event->venue }}</span>
+                                </td>
                                 <td>{{ $event->requester->name }}<span class="sub">sent {{ $event->created_at->diffForHumans() }}</span></td>
                                 <td>@if ($event->letter) <a href="{{ route('letters.show', $event->letter) }}">Read</a> @else <span class="sub">None</span> @endif</td>
                             </tr>

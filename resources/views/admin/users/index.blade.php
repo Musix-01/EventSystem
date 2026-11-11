@@ -88,6 +88,13 @@
                                         <button type="submit" class="link-btn danger">Remove officer</button>
                                     </form>
                                 @endif
+                                <form class="inline-form delete-user" method="POST" action="{{ route('admin.users.destroy', $u) }}"
+                                      onsubmit="return confirm('Permanently remove this user and their associated records?')">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="icon-btn danger" aria-label="Delete user {{ $u->name }}" title="Delete user">
+                                        @include('partials.icon', ['name' => 'trash', 'size' => 18])
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>

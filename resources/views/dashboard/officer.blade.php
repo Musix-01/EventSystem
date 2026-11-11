@@ -53,7 +53,8 @@
                 @foreach ($declined as $event)
                     <article class="event">
                         <h3>{{ $event->title }}</h3>
-                        <p class="meta">Declined {{ $event->reviewed_at->format('M j') }}, was set for {{ $event->starts_at->format('M j, g:i A') }}</p>
+                        <p class="meta">Declined {{ $event->reviewed_at->format('M j') }}, was set for:</p>
+                        @include('partials.event-schedule', ['event' => $event, 'compact' => true])
                         <div class="reason"><strong>Reason:</strong> {{ $event->decline_reason }}</div>
                     </article>
                 @endforeach

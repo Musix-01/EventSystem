@@ -14,7 +14,7 @@ class LetterController extends Controller
     public function index(): View
     {
         $letters = Letter::query()
-            ->with(['event', 'sender'])
+            ->with(['event.schedules', 'sender'])
             ->latest()
             ->get();
 
@@ -31,7 +31,7 @@ class LetterController extends Controller
             $letter->update(['read_at' => now()]);
         }
 
-        $letter->load(['event', 'sender']);
+        $letter->load(['event.schedules', 'sender']);
 
         return view('letters.show', compact('letter'));
     }
