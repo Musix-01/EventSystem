@@ -5,8 +5,10 @@
 @section('content')
 <div class="dash">
     <div class="dash-main">
-        <p class="greet">Hi, {{ \Illuminate\Support\Str::words($user->name, 1, '') }}. {{ $user->organization->value }} officer, {{ $user->student_number }}.</p>
-
+        <div class="greet-card">
+                <p class="greet">Welcome, {{ \Illuminate\Support\Str::words($user->name, 1, '') }}. </p>
+                    <p class = "user-info"> {{ $user->organization->value }} | {{ $user->student_number }}.</p>
+                </div>
         <div class="stat-row">
             @include('partials.stat-card', ['icon' => 'check', 'tone' => 'gold', 'title' => 'Waiting for admin', 'value' => $stats['pending'], 'caption' => 'requests', 'href' => route('officer.events.index')])
             @include('partials.stat-card', ['icon' => 'calendar', 'tone' => 'maroon', 'title' => 'Approved events', 'value' => $stats['upcoming'], 'caption' => 'coming up', 'href' => route('officer.events.index')])
