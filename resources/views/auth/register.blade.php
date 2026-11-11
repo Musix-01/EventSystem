@@ -53,12 +53,10 @@
         <div class="field {{ $errors->has('password') ? 'has-error' : '' }}">
             <label for="password">Password</label>
             <input type="password" id="password" name="password" autocomplete="new-password" required>
-            @error('password')
-                <div class="error">{{ $message }}</div>
-            @else
-                <div class="hint">At least 8 characters.</div>
-            @enderror
+            @error('password') <div class="error">{{ $message }}</div> @enderror
         </div>
+
+        @include('partials.password-strength', ['for' => 'password'])
 
         <div class="field">
             <label for="password_confirmation">Confirm password</label>
@@ -66,8 +64,15 @@
                    autocomplete="new-password" required>
         </div>
 
+        <label class="check">
+            <input type="checkbox" data-show-password="password,password_confirmation"> Show password
+        </label>
+
         <button type="submit" class="btn">Create account</button>
     </form>
 
     <p class="switch">Already registered? <a href="{{ route('login', ['as' => 'student']) }}">Log in</a></p>
+
+    <link rel="stylesheet" href="{{ asset('css/password.css') }}">
+    <script src="{{ asset('js/password.js') }}"></script>
 @endsection

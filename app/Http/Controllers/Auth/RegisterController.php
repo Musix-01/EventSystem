@@ -10,7 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
+use App\Rules\StrongPassword;
 use Illuminate\View\View;
 
 class RegisterController extends Controller
@@ -34,7 +34,7 @@ class RegisterController extends Controller
             'student_number' => ['required', 'regex:/^\d{4}-\d{5}-[A-Z]{2}-\d$/', 'unique:users,student_number'],
             'organization'   => ['required', Rule::in(Organization::values())],
             'cor'            => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
-            'password'       => ['required', 'confirmed', Password::min(8)],
+            'password'       => ['required', 'string', 'confirmed', new StrongPassword()],
         ], [
             'student_number.regex'  => 'Use the format 2024-00123-SR-0.',
             'student_number.unique' => 'This student number is already registered.',

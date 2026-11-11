@@ -30,15 +30,24 @@
             @error('password')
                 <div class="error">{{ $message }}</div>
             @else
-                <div class="hint">At least 8 characters. Share it with them privately.</div>
+                <div class="hint">Share it with them privately.</div>
             @enderror
         </div>
+
+        @include('partials.password-strength', ['for' => 'password'])
 
         <div class="field">
             <label for="password_confirmation">Confirm password</label>
             <input type="password" id="password_confirmation" name="password_confirmation" autocomplete="new-password" required>
         </div>
 
+        <label class="check">
+            <input type="checkbox" data-show-password="password,password_confirmation"> Show password
+        </label>
+
         <button type="submit" class="btn">Create faculty account</button>
     </form>
+
+    <link rel="stylesheet" href="{{ asset('css/password.css') }}">
+    <script src="{{ asset('js/password.js') }}"></script>
 @endsection

@@ -39,6 +39,10 @@
             <input type="checkbox" name="remember" value="1"> Keep me logged in
         </label>
 
+        <label class="check">
+            <input type="checkbox" data-show-password="password"> Show password
+        </label>
+
         <button type="submit" class="btn">Log in</button>
     </form>
 
@@ -48,4 +52,7 @@
         <p class="switch">No account yet? <a href="{{ route('register') }}">Create one</a></p>
     @elseif ($as === 'faculty')
     @endif
+
+    <link rel="stylesheet" href="{{ asset('css/password.css') }}">
+    <script src="{{ asset('js/password.js') }}"></script>
 @endsection
