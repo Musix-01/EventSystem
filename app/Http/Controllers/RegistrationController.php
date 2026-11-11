@@ -12,7 +12,7 @@ use Illuminate\View\View;
 
 class RegistrationController extends Controller
 {
-    /** "My events": everything the user joined, with their codes. */
+    //My events
     public function index(Request $request): View
     {
         $registrations = $request->user()->registrations()
@@ -43,9 +43,8 @@ class RegistrationController extends Controller
             'year.in'          => 'Choose a year from the list.',
             'section.in'       => 'Choose a section from the list.',
         ]);
-        $yearSection = "{$data['program']} {$data['year']}-{$data['section']}";   // BSIT 3-1
+        $yearSection = "{$data['program']} {$data['year']}-{$data['section']}"; 
 
-        // Lock the event row so two students can't take the last seat at the same time.
         $blocked = DB::transaction(function () use ($event, $user, $yearSection) {
             $locked = Event::whereKey($event->id)->lockForUpdate()->first();
 

@@ -1,10 +1,9 @@
 :root {
-    /* PUP palette: maroon and gold */
     --maroon: #800000;
     --maroon-dark: #5c0000;
     --gold: #f5b800;
-    --accent: #800000; /* links, active tab underline */
-    --focus: #800000; /* keyboard focus ring */
+    --accent: #800000;
+    --focus: #800000;
 
     --paper: #f7f5f4;
     --surface: #ffffff;

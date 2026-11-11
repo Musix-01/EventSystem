@@ -9,7 +9,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('registrations', function (Blueprint $table) {
-            // e.g. "BSIT 3-1". Nullable so registrations made before this change still work.
             $table->string('year_section', 30)->nullable()->after('user_id')->index();
         });
     }

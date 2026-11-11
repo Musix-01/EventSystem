@@ -38,19 +38,16 @@ class Registration extends Model
         return $this->attended_at !== null;
     }
 
-    /** "482193" shown as "482 193" so it is easy to read out loud. */
     public function spacedCode(): string
     {
         return substr($this->code, 0, 3) . ' ' . substr($this->code, 3);
     }
 
-    /** What the QR contains. The officer's scanner (step 4) will read this. */
     public function qrPayload(): string
     {
         return 'CE:' . $this->event_id . ':' . $this->code;
     }
 
-    /** Inline SVG, generated on the server. No JavaScript or image extension needed. */
     public function qrSvg(int $size = 220): string
     {
         $writer = new Writer(new ImageRenderer(new RendererStyle($size, 1), new SvgImageBackEnd()));

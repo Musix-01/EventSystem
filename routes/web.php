@@ -30,20 +30,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 
-    // Everyone: browse events, view one, join, leave, see your own tickets
+    // All users can view events and register 
     Route::get('/events', [HomeController::class, 'index'])->name('events.index');
     Route::get('/events/{event}', [StudentEventController::class, 'show'])->name('events.show');
     Route::post('/events/{event}/join', [RegistrationController::class, 'store'])->name('events.join');
     Route::delete('/events/{event}/leave', [RegistrationController::class, 'destroy'])->name('events.leave');
     Route::get('/my-events', [RegistrationController::class, 'index'])->name('registrations.index');
 
-    // Request letters: officers (their own org) and admins
+    // Request letters
     Route::middleware(EnsureRole::class . ':officer,admin')->group(function () {
         Route::get('/letters/{letter}', [LetterController::class, 'show'])->name('letters.show');
         Route::get('/letters/{letter}/attachment', [LetterController::class, 'attachment'])->name('letters.attachment');
     });
 
-    // Attendance: officers manage their org's events. Admins and faculty can view and print.
+    // Attendance
     Route::middleware(EnsureRole::class . ':officer,admin,faculty')->group(function () {
         Route::get('/events/{event}/attendance', [AttendanceController::class, 'show'])->name('attendance.show');
         Route::get('/events/{event}/attendance/print', [AttendanceController::class, 'print'])->name('attendance.print');
@@ -52,7 +52,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('/events/{event}/attendance/{registration}', [AttendanceController::class, 'toggle'])->name('attendance.toggle');
     });
 
-    // Org officers: request and manage their org's events
+    // Org officers
     Route::middleware(EnsureRole::class . ':officer')
         ->prefix('officer')->name('officer.')->group(function () {
             Route::get('/events', [OfficerEventController::class, 'index'])->name('events.index');
@@ -61,7 +61,7 @@ Route::middleware('auth')->group(function () {
             Route::patch('/events/{event}/cancel', [OfficerEventController::class, 'cancel'])->name('events.cancel');
         });
 
-    // Admin: approve or decline requests, read letters, manage users
+    // Admin
     Route::middleware(EnsureRole::class . ':admin')
         ->prefix('admin')->name('admin.')->group(function () {
             Route::get('/events', [EventReviewController::class, 'index'])->name('events.index');

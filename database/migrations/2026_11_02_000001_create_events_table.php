@@ -11,15 +11,15 @@ return new class extends Migration
         Schema::create('events', function (Blueprint $table) {
             $table->id();
             $table->foreignId('requested_by')->constrained('users')->cascadeOnDelete();
-            $table->string('organization');              // hosting org, e.g. ELITE
+            $table->string('organization');
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('venue');
             $table->dateTime('starts_at');
             $table->dateTime('ends_at');
-            $table->string('visibility')->default('org'); // all | org
+            $table->string('visibility')->default('org');
             $table->unsignedInteger('capacity')->nullable();
-            $table->string('status')->default('pending'); // pending | approved | declined | cancelled | completed
+            $table->string('status')->default('pending');
 
             // Admin review trail
             $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();

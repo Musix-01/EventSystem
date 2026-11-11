@@ -56,7 +56,6 @@ class Event extends Model
         return $this->status === EventStatus::Pending;
     }
 
-    /** Events a user is allowed to see in lists: open events plus their own org's. */
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
         if ($user->isStaff()) {
@@ -75,7 +74,6 @@ class Event extends Model
             return true;
         }
 
-        // Officers can always open their own org's events, even while pending.
         if ($user->isOfficer() && $this->organization === $user->organization) {
             return true;
         }
@@ -88,7 +86,6 @@ class Event extends Model
             || $this->organization === $user->organization;
     }
 
-    /** Seats left, or null when there is no limit. */
     public function seatsLeft(): ?int
     {
         if ($this->capacity === null) {
@@ -100,7 +97,6 @@ class Event extends Model
         return max(0, $this->capacity - $taken);
     }
 
-    /** Null means the user can join. Otherwise the message explains why not. */
     public function joinBlockedReason(User $user): ?string
     {
         if ($user->isStaff()) {
@@ -125,10 +121,6 @@ class Event extends Model
         return null;
     }
 
-    /**
-     * Another approved event at the same venue whose time overlaps this one.
-     * Shown to the admin as a warning before approving.
-     */
     public function venueConflict(): ?Event
     {
         return static::query()

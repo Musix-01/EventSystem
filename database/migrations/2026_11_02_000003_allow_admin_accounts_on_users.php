@@ -10,15 +10,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Admins belong to the PUP office: no student number, no organization.
             $table->string('student_number')->nullable()->change();
             $table->string('organization')->nullable()->change();
 
-            // Admins sign in with an email instead.
             $table->string('email')->nullable()->unique()->after('name');
         });
 
-        // Convert the existing admin account (if any) so you don't have to re-seed.
         $adminId = DB::table('users')->where('role', 'admin')->orderBy('id')->value('id');
 
         if ($adminId) {

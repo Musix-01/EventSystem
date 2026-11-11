@@ -11,10 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
-/**
- * Who registered, who showed up, and the printable attendance sheet.
- * Officers manage their own org's events. Admins and faculty can view and print any event.
- */
 class AttendanceController extends Controller
 {
     public function show(Request $request, Event $event): View
@@ -50,7 +46,7 @@ class AttendanceController extends Controller
         return view('attendance.print', compact('event', 'registrations', 'onlyPresent', 'section'));
     }
 
-    /** Check a student in by typing their 6-digit code (or pasting what a QR scanner reads). */
+    // Check a student in by typing their 6-digit code
     public function checkIn(Request $request, Event $event): RedirectResponse
     {
         abort_unless($this->canManage($request, $event), 403);
@@ -64,7 +60,7 @@ class AttendanceController extends Controller
         };
     }
 
-    /** Called by the camera scanner on the attendance page. Always answers with JSON. */
+    // Called by the camera scanner on the attendance page
     public function scan(Request $request, Event $event): JsonResponse
     {
         abort_unless($this->canManage($request, $event), 403);
@@ -82,10 +78,8 @@ class AttendanceController extends Controller
         ]);
     }
 
-    /**
-     * Accepts a plain 6-digit code, or the QR text "CE:{event id}:{code}".
-     * Returns ['status' => ok|duplicate|error, 'message' => string, 'registration' => ?Registration].
-     */
+
+    //accepts 6-digit code
     private function attemptCheckIn(Request $request, Event $event, string $raw): array
     {
         $raw = trim($raw);
@@ -125,7 +119,6 @@ class AttendanceController extends Controller
         return ['status' => 'ok', 'message' => "{$registration->user->name} checked in.", 'registration' => $registration];
     }
 
-    /** Manual fallback: mark someone present (lost phone), or undo a mistake. */
     public function toggle(Request $request, Event $event, Registration $registration): RedirectResponse
     {
         abort_unless($this->canManage($request, $event), 403);
@@ -142,7 +135,7 @@ class AttendanceController extends Controller
         return back()->with('status', $message);
     }
 
-    /** Grouped by year and section first (BSIT 3-1, 3-2, ...), then A to Z. Unknown sections go last. */
+    //grouping by year_section, then by name
     private function registrations(Event $event): Collection
     {
         return $event->registrations()
@@ -156,7 +149,6 @@ class AttendanceController extends Controller
             ->values();
     }
 
-    /** ?section=BSIT 3-1 narrows the list. Anything that is not a real section is ignored. */
     private function sectionFilter(Request $request, Collection $all): ?string
     {
         $wanted = $request->query('section');

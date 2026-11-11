@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class LetterController extends Controller
 {
-    /** Admin inbox: every request letter sent by org officers. */
+    // Admin inbox: every request letter sent by org officers.
     public function index(): View
     {
         $letters = Letter::query()
@@ -21,7 +21,7 @@ class LetterController extends Controller
         return view('admin.letters.index', compact('letters'));
     }
 
-    /** The printable letter. Admins, and the officers of the hosting org. */
+    // The printable letter. Admins, and the officers of the hosting org.
     public function show(Request $request, Letter $letter): View
     {
         $this->authorizeAccess($request, $letter);
@@ -36,7 +36,7 @@ class LetterController extends Controller
         return view('letters.show', compact('letter'));
     }
 
-    /** The optional signed scan the officer uploaded. */
+    // The optional signed scan the officer uploaded.
     public function attachment(Request $request, Letter $letter): StreamedResponse
     {
         $this->authorizeAccess($request, $letter);

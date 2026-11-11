@@ -42,7 +42,6 @@ class User extends Authenticatable
         return $this->hasMany(Registration::class);
     }
 
-    /** Short label for the header. Admins are from the PUP office, so they have no organization. */
     public function affiliation(): string
     {
         if ($this->isAdmin()) {
@@ -61,7 +60,7 @@ class User extends Authenticatable
         return $this->role === Role::Admin;
     }
 
-    /** "Maria Santos" becomes "MS". Used for avatar circles. */
+    //Name Initials
     public function initials(): string
     {
         return collect(preg_split('/\s+/', trim($this->name)))
@@ -76,7 +75,6 @@ class User extends Authenticatable
         return $this->role === Role::Faculty;
     }
 
-    /** Admin and faculty belong to no organization and never join events. They only monitor. */
     public function isStaff(): bool
     {
         return $this->isAdmin() || $this->isFaculty();

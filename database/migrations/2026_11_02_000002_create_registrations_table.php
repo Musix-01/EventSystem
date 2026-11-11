@@ -12,13 +12,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('event_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('code', 6);                       // 6-digit check-in code
-            $table->timestamp('attended_at')->nullable();    // set when an officer scans or enters the code
+            $table->string('code', 6);
+            $table->timestamp('attended_at')->nullable();
             $table->foreignId('checked_in_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
 
-            $table->unique(['event_id', 'user_id']);  // a student joins an event once
-            $table->unique(['event_id', 'code']);     // codes are unique within an event
+            $table->unique(['event_id', 'user_id']);
+            $table->unique(['event_id', 'code']);
         });
     }
 

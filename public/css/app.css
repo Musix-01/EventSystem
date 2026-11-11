@@ -1,30 +1,26 @@
-/* Shared app shell, loaded after campus.css */
 .topbar {
     background: var(--surface);
     border-bottom: 4px solid var(--gold);
 }
-/* 1. Turn the parent wrapper into a flexbox container */
 .topbar-inner {
     display: flex;
-    justify-content: space-between; /* Spreads Brand (left), Nav (center), and Who (right) */
-    align-items: center;            /* Perfectly centers them vertically */
+    justify-content: space-between;
+    align-items: center;
     width: 100%;
-    max-width: 1200px;              /* Optional: keeps header content from going too wide on huge monitors */
-    margin: 0 auto;                 /* Centers the maximum width container on the page */
-    padding: 0 1.5rem;              /* Prevents text from touching screen edges */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;             
     box-sizing: border-box;
 }
 
-/* 2. Revert brand back to standard inline/flex item styling */
 .brand {
     font-weight: 800;
     font-size: 3rem;
     color: var(--ink);
     text-decoration: none;
-    white-space: nowrap;            /* Keeps "Campus Events" on one single line */
+    white-space: nowrap;
 }
 
-/* 3. Keep your existing nav styles */
 .nav {
     display: flex;
     align-items: center;
@@ -32,7 +28,6 @@
     flex-wrap: wrap;
 }
 
-/* 4. Align the profile/logout group vertically too */
 .who {
     display: flex;
     align-items: center;

@@ -16,7 +16,6 @@ class StudentEventController extends Controller
 
         $event->loadCount('registrations');
 
-        // Pre-select what the student chose last time ("BSIT 3-1" becomes BSIT / 3 / 1).
         $last = $user->registrations()->whereNotNull('year_section')->latest('id')->value('year_section');
         $prefill = ['program' => null, 'year' => null, 'section' => null];
         if ($last && preg_match('/^(.+) (\d)-(\d)$/', $last, $m)) {
