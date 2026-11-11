@@ -7,6 +7,7 @@ use App\Models\Registration;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class RegistrationController extends Controller
@@ -29,8 +30,23 @@ class RegistrationController extends Controller
 
         abort_unless($event->isVisibleTo($user), 404);
 
+        // Students must say which program, year and section they belong to before joining.
+        $data = $request->validate([
+            'program' => ['required', Rule::in(config('campus.programs'))],
+            'year'    => ['required', Rule::in(config('campus.years'))],
+            'section' => ['required', Rule::in(config('campus.sections'))],
+        ], [
+            'program.required' => 'Choose your program.',
+            'year.required'    => 'Choose your year level.',
+            'section.required' => 'Choose your section.',
+            'program.in'       => 'Choose a program from the list.',
+            'year.in'          => 'Choose a year from the list.',
+            'section.in'       => 'Choose a section from the list.',
+        ]);
+        $yearSection = "{$data['program']} {$data['year']}-{$data['section']}";   // BSIT 3-1
+
         // Lock the event row so two students can't take the last seat at the same time.
-        $blocked = DB::transaction(function () use ($event, $user) {
+        $blocked = DB::transaction(function () use ($event, $user, $yearSection) {
             $locked = Event::whereKey($event->id)->lockForUpdate()->first();
 
             if ($reason = $locked->joinBlockedReason($user)) {
@@ -38,9 +54,10 @@ class RegistrationController extends Controller
             }
 
             Registration::create([
-                'event_id' => $locked->id,
-                'user_id'  => $user->id,
-                'code'     => $this->uniqueCode($locked),
+                'event_id'     => $locked->id,
+                'user_id'      => $user->id,
+                'year_section' => $yearSection,
+                'code'         => $this->uniqueCode($locked),
             ]);
 
             return null;

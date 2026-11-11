@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Registration extends Model
 {
-    protected $fillable = ['event_id', 'user_id', 'code', 'attended_at', 'checked_in_by'];
+    protected $fillable = ['event_id', 'user_id', 'year_section', 'code', 'attended_at', 'checked_in_by'];
 
     protected function casts(): array
     {

@@ -30,12 +30,13 @@
             <div><dt>Organization</dt><dd>{{ $event->organization->value }}</dd></div>
             <div><dt>Date and time</dt><dd>{{ $event->starts_at->format('F j, Y, g:i A') }} to {{ $event->ends_at->format('g:i A') }}</dd></div>
             <div><dt>Venue</dt><dd>{{ $event->venue }}</dd></div>
+            @if ($section)<div><dt>Section</dt><dd>{{ $section }}</dd></div>@endif
             <div><dt>Total</dt><dd>{{ $registrations->count() }} {{ $onlyPresent ? 'present' : 'registered' }}</dd></div>
         </dl>
 
         <table class="sheet">
             <thead>
-                <tr><th class="no">No.</th><th>Student number</th><th>Name</th><th>Org</th><th>Time in</th><th>Signature</th></tr>
+                <tr><th class="no">No.</th><th>Student number</th><th>Name</th><th>Year &amp; Section</th><th>Org</th><th>Time in</th><th>Signature</th></tr>
             </thead>
             <tbody>
             @forelse ($registrations as $r)
@@ -43,12 +44,13 @@
                     <td class="no">{{ $loop->iteration }}</td>
                     <td>{{ $r->user->student_number }}</td>
                     <td>{{ $r->user->name }}</td>
+                    <td>{{ $r->year_section ?? '-' }}</td>
                     <td>{{ $r->user->organization?->value }}</td>
                     <td>{{ $r->attended_at?->format('g:i A') }}</td>
                     <td class="sig"></td>
                 </tr>
             @empty
-                <tr><td colspan="6">No students to list.</td></tr>
+                <tr><td colspan="7">No students to list.</td></tr>
             @endforelse
             </tbody>
         </table>

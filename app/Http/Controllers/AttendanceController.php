@@ -21,9 +21,15 @@ class AttendanceController extends Controller
     {
         $this->authorizeView($request, $event);
 
+        $all     = $this->registrations($event);
+        $section = $this->sectionFilter($request, $all);
+
         return view('attendance.show', [
             'event'         => $event,
-            'registrations' => $this->registrations($event),
+            'registrations' => $section ? $all->where('year_section', $section)->values() : $all,
+            'sections'      => $all->groupBy(fn (Registration $r) => $r->year_section ?? 'No section'),
+            'section'       => $section,
+            'totalAll'      => $all->count(),
             'canManage'     => $this->canManage($request, $event),
         ]);
     }
@@ -34,10 +40,14 @@ class AttendanceController extends Controller
 
         $onlyPresent = $request->query('only') === 'present';
 
-        $registrations = $this->registrations($event)
+        $all     = $this->registrations($event);
+        $section = $this->sectionFilter($request, $all);
+
+        $registrations = $all
+            ->when($section, fn (Collection $c) => $c->where('year_section', $section)->values())
             ->when($onlyPresent, fn (Collection $c) => $c->filter->hasAttended()->values());
 
-        return view('attendance.print', compact('event', 'registrations', 'onlyPresent'));
+        return view('attendance.print', compact('event', 'registrations', 'onlyPresent', 'section'));
     }
 
     /** Check a student in by typing their 6-digit code (or pasting what a QR scanner reads). */
@@ -132,13 +142,26 @@ class AttendanceController extends Controller
         return back()->with('status', $message);
     }
 
+    /** Grouped by year and section first (BSIT 3-1, 3-2, ...), then A to Z. Unknown sections go last. */
     private function registrations(Event $event): Collection
     {
         return $event->registrations()
             ->with('user')
             ->get()
-            ->sortBy(fn (Registration $r) => mb_strtolower($r->user->name))
+            ->sortBy(fn (Registration $r) => [
+                $r->year_section ? 0 : 1,
+                mb_strtolower((string) $r->year_section),
+                mb_strtolower($r->user->name),
+            ])
             ->values();
+    }
+
+    /** ?section=BSIT 3-1 narrows the list. Anything that is not a real section is ignored. */
+    private function sectionFilter(Request $request, Collection $all): ?string
+    {
+        $wanted = $request->query('section');
+
+        return is_string($wanted) && $all->contains('year_section', $wanted) ? $wanted : null;
     }
 
     private function authorizeView(Request $request, Event $event): void

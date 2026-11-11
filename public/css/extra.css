@@ -290,3 +290,30 @@ a.btn {
 tr.just-scanned td {
     background: rgba(245, 184, 0, 0.18);
 }
+
+/* ---------- Year & Section (join form) ---------- */
+.join-form { display: grid; gap: 0.9rem; }
+.yearsec { margin: 0; padding: 0; border: 0; min-width: 0; }
+.yearsec legend { padding: 0; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.95rem; }
+.yearsec legend span { color: var(--danger); }
+.yearsec-row { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0.6rem; }
+.yearsec .field { margin: 0; min-width: 0; }
+.yearsec .field label { font-size: 0.8rem; color: var(--muted); }
+.yearsec select { width: 100%; }
+.yearsec-preview { margin: 0.5rem 0 0; min-height: 1.2em; color: var(--accent); font-size: 0.88rem; font-weight: 600; }
+.yearsec .error { margin-top: 0.35rem; }
+
+/* ---------- Attendance: filter by section ---------- */
+.sections { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 1.25rem; }
+.sections a, .sections-none {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    padding: 0.35rem 0.8rem; border-radius: 999px;
+    border: 1.5px solid var(--line); color: var(--ink);
+    background: color-mix(in srgb, var(--surface) 55%, transparent);
+    font-size: 0.88rem; font-weight: 600; text-decoration: none;
+}
+.sections a b, .sections-none b { color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+.sections a:hover { border-color: var(--accent); }
+.sections a[aria-current] { background: var(--maroon); border-color: var(--maroon); color: #fff; }
+.sections a[aria-current] b { color: #ffe9a8; }
+.sections-none { border-style: dashed; color: var(--muted); }

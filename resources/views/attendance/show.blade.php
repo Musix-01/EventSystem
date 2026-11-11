@@ -13,8 +13,8 @@
             </p>
         </div>
         <div class="cell-actions">
-            <a href="{{ route('attendance.print', $event) }}" target="_blank">Print attendance sheet</a>
-            <a href="{{ route('attendance.print', [$event, 'only' => 'present']) }}" target="_blank">Print present only</a>
+            <a href="{{ route('attendance.print', array_filter([$event, 'section' => $section])) }}" target="_blank">Print attendance sheet</a>
+            <a href="{{ route('attendance.print', array_filter([$event, 'only' => 'present', 'section' => $section])) }}" target="_blank">Print present only</a>
         </div>
     </div>
 
@@ -26,6 +26,23 @@
         <div class="stat"><strong id="stat-present">{{ $present }}</strong><span>Checked in</span></div>
         <div class="stat"><strong id="stat-notyet">{{ $registrations->count() - $present }}</strong><span>Not yet</span></div>
     </div>
+
+    @if ($totalAll > 0)
+        <nav class="sections" aria-label="Filter by year and section">
+            <a href="{{ route('attendance.show', $event) }}" @if(! $section) aria-current="true" @endif>
+                All <b>{{ $totalAll }}</b>
+            </a>
+            @foreach ($sections as $label => $group)
+                @if ($label !== 'No section')
+                    <a href="{{ route('attendance.show', [$event, 'section' => $label]) }}" @if($section === $label) aria-current="true" @endif>
+                        {{ $label }} <b>{{ $group->filter->hasAttended()->count() }}/{{ $group->count() }}</b>
+                    </a>
+                @else
+                    <span class="sections-none">No section <b>{{ $group->count() }}</b></span>
+                @endif
+            @endforeach
+        </nav>
+    @endif
 
     @if ($canManage)
         <form class="checkin" method="POST" action="{{ route('attendance.checkin', $event) }}">
@@ -54,7 +71,7 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>#</th><th>Student</th><th>Organization</th><th>Status</th>
+                        <th>#</th><th>Student</th><th>Year &amp; Section</th><th>Organization</th><th>Status</th>
                         @if ($canManage)<th>Action</th>@endif
                     </tr>
                 </thead>
@@ -63,6 +80,7 @@
                     <tr id="reg-{{ $r->id }}">
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ $r->user->name }}<span class="sub">{{ $r->user->student_number }}</span></td>
+                        <td>{{ $r->year_section ?? '-' }}</td>
                         <td>{{ $r->user->organization?->value }}</td>
                         <td data-status>
                             @if ($r->hasAttended())

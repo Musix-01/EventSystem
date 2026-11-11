@@ -79,6 +79,11 @@
 /* ---------- Main + top bar ---------- */
 .app-main {
     min-width: 0;
+    /* faint maroon and gold glow so the transparent boxes have something to show through */
+    background:
+        radial-gradient(60rem 30rem at 85% -5%, color-mix(in srgb, var(--maroon) 22%, transparent), transparent 70%),
+        radial-gradient(40rem 26rem at 10% 105%, color-mix(in srgb, var(--gold) 9%, transparent), transparent 70%);
+    background-attachment: fixed;
 }
 .top {
     display: flex;
@@ -184,6 +189,12 @@
     margin: 0;
     padding: 0.5rem 2rem 4rem;
 }
+/* Dashboards fill the screen. The side column grows with the window, so zooming out
+   spreads the content out instead of leaving an empty strip on the right. */
+.app-main .page:has(> .dash) {
+    max-width: none;
+    padding-inline: clamp(1rem, 2.2vw, 2.5rem);
+}
 
 /* ---------- Avatars ---------- */
 .av {
@@ -224,8 +235,8 @@
 /* ---------- Dashboard layout ---------- */
 .dash {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 320px;
-    gap: 1.5rem;
+    grid-template-columns: minmax(0, 1fr) clamp(300px, 26vw, 460px);
+    gap: clamp(1rem, 1.6vw, 1.75rem);
     align-items: start;
 }
 .dash-main,
@@ -266,7 +277,9 @@
     align-items: center;
     gap: 0.9rem;
     padding: 1rem 1.1rem;
-    background: var(--surface);
+    background: color-mix(in srgb, var(--surface) 55%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     border: 1.5px solid var(--line);
     border-radius: 14px;
     color: var(--ink);
@@ -330,7 +343,9 @@ a.stat-card:hover {
 }
 
 .panel {
-    background: var(--surface);
+    background: color-mix(in srgb, var(--surface) 55%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     border: 1.5px solid var(--line);
     border-radius: 14px;
     padding: 1.1rem 1.25rem;
@@ -368,7 +383,7 @@ a.stat-card:hover {
     overflow: hidden;
     border: 1.5px solid var(--line);
     border-radius: 12px;
-    background: var(--surface);
+    background: color-mix(in srgb, var(--surface) 40%, transparent);
     color: var(--ink);
     text-decoration: none;
     font-weight: 400;
