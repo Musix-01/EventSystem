@@ -51,7 +51,6 @@ class UserController extends Controller
         ]);
     }
 
-    /** Promote a student to officer, or move an officer back to student. */
     public function updateRole(Request $request, User $user): RedirectResponse
     {
         abort_unless($user->isStudent() || $user->isOfficer(), 403, 'Only student and officer roles can be changed here.');
@@ -74,7 +73,6 @@ class UserController extends Controller
         return view('admin.users.faculty-create');
     }
 
-    /** Faculty accounts are made by the admin, so nobody can sign up as faculty on their own. */
     public function storeFaculty(Request $request): RedirectResponse
     {
         $request->merge(['email' => strtolower(trim((string) $request->input('email', '')))]);
@@ -100,7 +98,6 @@ class UserController extends Controller
             ->with('status', "Faculty account created for {$data['name']}.");
     }
 
-    /** Show a student's COR. Admin only (route is behind the admin role middleware). */
     public function cor(User $user): StreamedResponse
     {
         abort_unless($user->cor_path && Storage::disk('local')->exists($user->cor_path), 404, 'No COR on file.');

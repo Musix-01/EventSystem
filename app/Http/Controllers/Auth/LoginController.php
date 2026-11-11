@@ -10,12 +10,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
-/**
- * The welcome page asks "who is logging in?", then each choice opens this login.
- *  - student, officer: sign in with a student number
- *  - faculty (and PUP office admins): sign in with an email
- * The account's role must match the option picked.
- */
 class LoginController extends Controller
 {
     public static function portals(): array
@@ -34,7 +28,7 @@ class LoginController extends Controller
                 'brand' => 'Request events and keep track of who showed up.',
             ],
             'faculty' => [
-                'roles' => [Role::Faculty, Role::Admin],   // PUP office admins sign in here too
+                'roles' => [Role::Faculty, Role::Admin],
                 'by'    => 'email',
                 'title' => 'Faculty',
                 'brand' => 'Keep track of campus events and attendance.',

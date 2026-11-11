@@ -6,10 +6,6 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Usage on a route:  ->middleware(EnsureRole::class . ':admin')
- *                    ->middleware(EnsureRole::class . ':officer,admin')
- */
 class EnsureRole
 {
     public function handle(Request $request, Closure $next, string ...$roles): Response

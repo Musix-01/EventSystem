@@ -1,12 +1,3 @@
-/*
- * Password helpers for the login, register and add-faculty forms.
- *
- *  <input type="checkbox" data-show-password="password,password_confirmation">
- *      shows or hides the listed password fields.
- *
- *  <div data-strength data-input="password"> ... </div>
- *      live strength meter and checklist for that field.
- */
 (function () {
     // ---------- Show password ----------
     document.querySelectorAll('[data-show-password]').forEach(function (box) {
@@ -20,17 +11,16 @@
         }
 
         box.addEventListener('change', sync);
-        sync(); // the browser can restore a ticked box after a refresh
+        sync();
     });
 
-    // ---------- Strength meter ----------
     const rules = {
         length: function (v) { return v.length >= 8; },
         upper:  function (v) { return /[A-Z]/.test(v); },
         number: function (v) { return /[0-9]/.test(v); }
     };
     const labels = ['Not entered', 'Weak', 'Medium', 'Strong'];
-    const levelByMet = [1, 1, 2, 3]; // 0 or 1 rule met = Weak, 2 = Medium, 3 = Strong
+    const levelByMet = [1, 1, 2, 3];
 
     document.querySelectorAll('[data-strength]').forEach(function (box) {
         const input  = document.getElementById(box.getAttribute('data-input'));

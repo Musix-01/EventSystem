@@ -15,10 +15,10 @@ use Illuminate\View\View;
 
 class EventController extends Controller
 {
-    /** All events of the officer's own organization. */
+
 public function index(Request $request): View
 {
-    $view = $request->query('view', 'all'); // Sets a default string state if none is selected
+    $view = $request->query('view', 'all');
     $q = $request->query('q');
 
     $query = Event::query()
@@ -40,7 +40,6 @@ public function index(Request $request): View
 
     $events = $query->orderByDesc('starts_at')->get();
 
-    // Make sure 'view' and 'q' are added here:
     return view('officer.events.index', compact('events', 'view', 'q'));
 }
 

@@ -24,7 +24,6 @@ class RegisterController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        // Normalize before validating so "2024-00123-sr-0" and "2024-00123-SR-0" are the same.
         $request->merge([
             'student_number' => strtoupper(trim($request->input('student_number', ''))),
         ]);
@@ -44,15 +43,14 @@ class RegisterController extends Controller
             'cor.uploaded'          => 'The COR could not be uploaded. Try a smaller file (up to 5 MB).',
         ]);
 
-        // Private disk: the file is not reachable by URL, only through an admin-only route.
         $corPath = $request->file('cor')->store('cor', 'local');
 
         $user = User::create([
             'name'           => $data['name'],
             'student_number' => $data['student_number'],
             'organization'   => $data['organization'],
-            'role'           => Role::Student->value, // everyone starts as a student; the admin promotes officers
-            'password'       => $data['password'],    // hashed by the model cast
+            'role'           => Role::Student->value,
+            'password'       => $data['password'],
             'cor_path'       => $corPath,
         ]);
 
