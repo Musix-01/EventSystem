@@ -4,6 +4,6 @@
     <span class="stat-ico">@include('partials.icon', ['name' => $icon])</span>
     <span class="stat-text">
         <strong>{{ $title }}</strong>
-
+       
     </span>
 </{{ $tagName }}>

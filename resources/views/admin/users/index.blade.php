@@ -88,6 +88,13 @@
                                         <button type="submit" class="link-btn danger">Remove officer</button>
                                     </form>
                                 @endif
+                                @if (($u->isStudent() || $u->isOfficer()) && $u->organization !== \App\Enums\Organization::SC)
+                                    <form class="inline-form" method="POST" action="{{ route('admin.users.student-council', $u) }}"
+                                          onsubmit="return confirm('Make {{ addslashes($u->name) }} a Student Council officer?{{ $u->isOfficer() ? ' They will stop managing ' . $u->organization?->value . ' events.' : '' }}')">
+                                        @csrf @method('PATCH')
+                                        <button type="submit" class="link-btn">Make Student Council officer</button>
+                                    </form>
+                                @endif
                                 <form class="inline-form delete-user" method="POST" action="{{ route('admin.users.destroy', $u) }}"
                                       onsubmit="return confirm('Permanently remove this user and their associated records?')">
                                     @csrf @method('DELETE')

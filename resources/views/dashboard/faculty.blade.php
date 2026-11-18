@@ -7,9 +7,13 @@
     <div class="dash-main">
         <p class="greet">Hi, {{ \Illuminate\Support\Str::words(auth()->user()->name, 1, '') }}. Open an event to see who attended and print the sheet.</p>
         <div class="stat-row">
-            @include('partials.stat-card', ['icon' => 'calendar', 'tone' => 'maroon', 'title' => 'Events today', 'value' => $stats['today'], 'caption' => 'approved'])
-            @include('partials.stat-card', ['icon' => 'ticket', 'tone' => 'gold', 'title' => 'Coming up', 'value' => $stats['upcoming'], 'caption' => 'in 30 days'])
-            @include('partials.stat-card', ['icon' => 'check', 'tone' => 'green', 'title' => 'Finished', 'value' => $stats['recent'], 'caption' => 'in the last 14 days'])
+            @include('partials.stat-card', [
+                'icon' => 'ticket', 'tone' => 'gold', 'title' => 'Check Attendance',     'href' => route('events.index'),
+            ])
+            @include('partials.stat-card', [
+                'icon' => 'check', 'tone' => 'green', 'title' => 'Finished',
+                'value' => $stats['recent'], 'caption' => 'in the last 14 days', 'href' => route('events.index'),
+            ])
         </div>
 
         <section class="panel">
@@ -77,7 +81,6 @@
 
     <aside class="dash-side">
         @include('partials.activity', ['items' => $activity])
-        @include('partials.area-chart', ['series' => $series, 'title' => 'Registrations'])
     </aside>
 </div>
 @endsection

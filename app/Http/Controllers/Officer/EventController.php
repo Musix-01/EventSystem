@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Officer;
 
 use App\Enums\EventStatus;
 use App\Enums\EventVisibility;
+use App\Enums\Organization;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Letter;
@@ -54,6 +55,11 @@ public function index(Request $request): View
 
     public function store(Request $request): RedirectResponse
     {
+        // Student Council events are always open to every student, whatever the form sent.
+        if ($request->user()->organization === Organization::SC) {
+            $request->merge(['visibility' => EventVisibility::All->value]);
+        }
+
         $validator = Validator::make($request->all(), [
             'title'       => ['required', 'string', 'max:150'],
             'description' => ['nullable', 'string', 'max:2000'],

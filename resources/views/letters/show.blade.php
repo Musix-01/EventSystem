@@ -29,7 +29,7 @@
         <header class="paper-head">
             <span>Republic of the Philippines</span>
             <strong>Polytechnic University of the Philippines</strong>
-            <span>{{ $event->organization->value }} Student Organization</span>
+            <span>{{ $event->organization === \App\Enums\Organization::SC ? 'Student Council' : $event->organization->value . ' Student Organization' }}</span>
         </header>
 
         <p>{{ $letter->created_at->format('F j, Y') }}</p>

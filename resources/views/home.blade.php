@@ -36,7 +36,7 @@
         <div class="grid">
             @foreach ($events as $event)
                 @php($left = $event->seatsLeft())
-                <a class="card" href="{{ route('events.show', $event) }}">
+                <a class="card" href="{{ auth()->user()->isFaculty() ? route('attendance.show', $event) : route('events.show', $event) }}">
                     <div><span class="org-chip">{{ $event->organization->value }}</span></div>
                     <h3>{{ $event->title }}</h3>
                     <div class="when">@include('partials.event-schedule', ['event' => $event, 'compact' => true])</div>

@@ -18,7 +18,7 @@ class RegisterController extends Controller
     public function create(): View
     {
         return view('auth.register', [
-            'organizations' => Organization::cases(),
+            'organizations' => Organization::registrable(),
         ]);
     }
 
@@ -31,12 +31,13 @@ class RegisterController extends Controller
         $data = $request->validate([
             'name'           => ['required', 'string', 'max:255'],
             'student_number' => ['required', 'regex:/^\d{4}-\d{5}-[A-Z]{2}-\d$/', 'unique:users,student_number'],
-            'organization'   => ['required', Rule::in(Organization::values())],
+            'organization'   => ['required', Rule::in(Organization::registrableValues())],
             'cor'            => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'password'       => ['required', 'string', 'confirmed', new StrongPassword()],
         ], [
             'student_number.regex'  => 'Use the format 2024-00123-SR-0.',
             'student_number.unique' => 'This student number is already registered.',
+            'organization.in'       => 'Choose one of the academic organizations in the list.',
             'cor.required'          => 'Upload your Certificate of Registration (COR).',
             'cor.mimes'             => 'The COR must be a PDF, JPG or PNG file.',
             'cor.max'               => 'The COR must be 5 MB or smaller.',

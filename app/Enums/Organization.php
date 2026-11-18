@@ -14,6 +14,17 @@ enum Organization: string
     case JPIA  = 'JPIA';
     case PIIE  = 'PIIE';
 
+    /** The academic organizations a student can pick when creating an account. Student Council is assigned by the admin. */
+    public static function registrable(): array
+    {
+        return array_values(array_filter(self::cases(), fn (self $org) => $org !== self::SC));
+    }
+
+    public static function registrableValues(): array
+    {
+        return array_column(self::registrable(), 'value');
+    }
+
     /** Plain list of values, handy for validation: Rule::in(Organization::values()) */
     public static function values(): array
     {

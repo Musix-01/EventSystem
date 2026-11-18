@@ -283,10 +283,6 @@ input[type="file"]:focus-visible {
 .sheet th {
     background: #eee;
 }
-.sheet td.sig {
-    width: 28%;
-    height: 2.2rem;
-}
 .sheet td.no {
     width: 2.5rem;
     text-align: center;

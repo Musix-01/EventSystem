@@ -18,6 +18,7 @@ class User extends Authenticatable
         'email',
         'name',
         'organization',
+        'academic_organization',
         'role',
         'password',
         'cor_path',
@@ -31,8 +32,9 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'organization' => Organization::class,
-            'role'         => Role::class,
+            'organization'          => Organization::class,
+            'academic_organization' => Organization::class,
+            'role'                  => Role::class,
             'password'     => 'hashed',
         ];
     }
@@ -40,6 +42,16 @@ class User extends Authenticatable
     public function registrations(): HasMany
     {
         return $this->hasMany(Registration::class);
+    }
+
+    /**
+     * True for the user's own organization and, for Student Council officers,
+     * the academic organization they came from. Used to decide which events they may join.
+     */
+    public function belongsToOrganization(?Organization $org): bool
+    {
+        return $org !== null
+            && ($this->organization === $org || $this->academic_organization === $org);
     }
 
     public function affiliation(): string

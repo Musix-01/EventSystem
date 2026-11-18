@@ -76,11 +76,17 @@
         <div class="row-2">
             <div class="field {{ $errors->has('visibility') ? 'has-error' : '' }}">
                 <label for="visibility">Who can join:</label>
-                <select id="visibility" name="visibility" required>
-                    @foreach ($visibilities as $v)
-                        <option value="{{ $v->value }}" @selected(old('visibility', 'org') === $v->value)>{{ $v->label() }}</option>
-                    @endforeach
-                </select>
+                @if (auth()->user()->organization === \App\Enums\Organization::SC)
+                    <input type="hidden" name="visibility" value="all">
+                    <div id="visibility" style="padding:.7rem .85rem;border:1.5px solid var(--line);border-radius:8px;background:var(--paper)">Open to all students</div>
+                    <div class="hint">Student Council events are always open to every student.</div>
+                @else
+                    <select id="visibility" name="visibility" required>
+                        @foreach ($visibilities as $v)
+                            <option value="{{ $v->value }}" @selected(old('visibility', 'org') === $v->value)>{{ $v->label() }}</option>
+                        @endforeach
+                    </select>
+                @endif
                 @error('visibility') <div class="error">{{ $message }}</div> @enderror
             </div>
             <div class="field {{ $errors->has('capacity') ? 'has-error' : '' }}">

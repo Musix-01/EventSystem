@@ -36,7 +36,7 @@
 
         <table class="sheet">
             <thead>
-                <tr><th class="no">No.</th><th>Student number</th><th>Name</th><th>Year &amp; Section</th><th>Org</th><th>Time in</th><th>Signature</th></tr>
+                <tr><th class="no">No.</th><th>Student number</th><th>Name</th><th>Year &amp; Section</th><th>Org</th><th>Time in</th></tr>
             </thead>
             <tbody>
             @forelse ($registrations as $r)
@@ -47,10 +47,9 @@
                     <td>{{ $r->year_section ?? '-' }}</td>
                     <td>{{ $r->user->organization?->value }}</td>
                     <td>{{ $r->attended_at?->format('g:i A') }}</td>
-                    <td class="sig"></td>
                 </tr>
             @empty
-                <tr><td colspan="7">No students to list.</td></tr>
+                <tr><td colspan="6">No students to list.</td></tr>
             @endforelse
             </tbody>
         </table>

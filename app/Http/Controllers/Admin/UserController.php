@@ -60,13 +60,44 @@ class UserController extends Controller
             'role' => ['required', Rule::in([Role::Student->value, Role::Officer->value])],
         ]);
 
-        $user->update(['role' => $data['role']]);
+        $changes = ['role' => $data['role']];
+
+        // Taking away a Student Council officer's role puts them back in their academic organization.
+        if ($data['role'] === Role::Student->value
+            && $user->organization === Organization::SC
+            && $user->academic_organization) {
+            $changes['organization']          = $user->academic_organization->value;
+            $changes['academic_organization'] = null;
+        }
+
+        $user->update($changes);
 
         $message = $data['role'] === Role::Officer->value
             ? "{$user->name} is now a/an {$user->organization->value} officer."
             : "{$user->name} has been removed.";
 
         return back()->with('status', $message);
+    }
+
+    /**
+     * Only the admin can do this. The student keeps their student number; their academic organization
+     * is remembered so they can still join its events, and so it can be restored later.
+     */
+    public function makeStudentCouncil(User $user): RedirectResponse
+    {
+        abort_unless($user->isStudent() || $user->isOfficer(), 403, 'Only student accounts can become Student Council officers.');
+
+        if ($user->organization === Organization::SC) {
+            return back()->with('error', "{$user->name} is already a Student Council officer.");
+        }
+
+        $user->update([
+            'academic_organization' => $user->organization?->value,
+            'organization'          => Organization::SC->value,
+            'role'                  => Role::Officer->value,
+        ]);
+
+        return back()->with('status', "{$user->name} is now a Student Council officer.");
     }
 
     public function destroy(Request $request, User $user): RedirectResponse

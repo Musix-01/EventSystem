@@ -96,9 +96,11 @@ class Event extends Model
             return $query;
         }
 
-        return $query->where(function (Builder $q) use ($user) {
+        $orgs = array_values(array_filter([$user->organization?->value, $user->academic_organization?->value]));
+
+        return $query->where(function (Builder $q) use ($orgs) {
             $q->where('visibility', EventVisibility::All->value)
-              ->orWhere('organization', $user->organization->value);
+              ->orWhereIn('organization', $orgs);
         });
     }
 
@@ -117,7 +119,7 @@ class Event extends Model
         }
 
         return $this->visibility === EventVisibility::All
-            || $this->organization === $user->organization;
+            || $user->belongsToOrganization($this->organization);
     }
 
     public function seatsLeft(): ?int
@@ -142,7 +144,7 @@ class Event extends Model
         if ($this->ends_at->isPast()) {
             return 'This event has already ended.';
         }
-        if ($this->visibility === EventVisibility::Org && $this->organization !== $user->organization) {
+        if ($this->visibility === EventVisibility::Org && ! $user->belongsToOrganization($this->organization)) {
             return 'Only ' . $this->organization->value . ' members can join this event.';
         }
         if ($this->registrations()->where('user_id', $user->id)->exists()) {
