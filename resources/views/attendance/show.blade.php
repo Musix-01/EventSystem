@@ -2,7 +2,11 @@
 @section('title', 'Attendance')
 
 @section('content')
-    @php($present = $registrations->filter->hasAttended()->count())
+    @php
+        $isMulti = $event->schedules->count() > 1;
+        $present = $registrations->filter(fn ($r) => $r->day_attended_at !== null)->count();
+        $dayNumber = $event->schedules->search(fn ($s) => $s->id === $day->id) + 1;
+    @endphp
 
     <div class="page-head">
         <div>
@@ -13,10 +17,34 @@
             @include('partials.event-schedule', ['event' => $event])
         </div>
         <div class="cell-actions">
-            <a href="{{ route('attendance.print', array_filter([$event, 'section' => $section])) }}" target="_blank">Print attendance sheet</a>
-            <a href="{{ route('attendance.print', array_filter([$event, 'only' => 'present', 'section' => $section])) }}" target="_blank">Print present only</a>
+            <a href="{{ route('attendance.print', array_filter([$event, 'day' => $day->id, 'section' => $section])) }}" target="_blank">Print {{ $isMulti ? 'this day' : 'attendance sheet' }}</a>
+            <a href="{{ route('attendance.print', array_filter([$event, 'day' => $day->id, 'only' => 'present', 'section' => $section])) }}" target="_blank">Print present only</a>
+            @if ($isMulti)
+                <a href="{{ route('attendance.print', array_filter([$event, 'day' => 'all', 'section' => $section])) }}" target="_blank">Print all days</a>
+            @endif
         </div>
     </div>
+
+    @if ($isMulti)
+        <nav class="day-tabs" aria-label="Event days">
+            @foreach ($event->schedules as $s)
+                <a href="{{ route('attendance.show', array_filter([$event, 'day' => $s->id, 'section' => $section])) }}"
+                   @if ($s->id === $day->id) aria-current="page" @endif>
+                    <strong>Day {{ $loop->iteration }}</strong>
+                    <span>{{ $s->date->format('M j') }}@if ($s->date->isToday()), today @endif</span>
+                    <b>{{ $dayCounts[$s->id] ?? 0 }}</b>
+                </a>
+            @endforeach
+        </nav>
+    @endif
+
+    <p class="day-note">
+        Checking in for <strong>{{ $isMulti ? 'Day ' . $dayNumber . ', ' : '' }}{{ $day->date->format('l, F j') }}</strong>
+        ({{ \Illuminate\Support\Carbon::parse($day->start_time)->format('g:i A') }} to {{ \Illuminate\Support\Carbon::parse($day->end_time)->format('g:i A') }}).
+        @unless ($day->date->isToday())
+            <span class="day-warn">This is not today's session.</span>
+        @endunless
+    </p>
 
     <div class="stats">
         <div class="stat">
@@ -29,13 +57,13 @@
 
     @if ($totalAll > 0)
         <nav class="sections" aria-label="Filter by year and section">
-            <a href="{{ route('attendance.show', $event) }}" @if(! $section) aria-current="true" @endif>
+            <a href="{{ route('attendance.show', array_filter([$event, 'day' => $day->id])) }}" @if(! $section) aria-current="true" @endif>
                 All <b>{{ $totalAll }}</b>
             </a>
             @foreach ($sections as $label => $group)
                 @if ($label !== 'No section')
-                    <a href="{{ route('attendance.show', [$event, 'section' => $label]) }}" @if($section === $label) aria-current="true" @endif>
-                        {{ $label }} <b>{{ $group->filter->hasAttended()->count() }}/{{ $group->count() }}</b>
+                    <a href="{{ route('attendance.show', [$event, 'day' => $day->id, 'section' => $label]) }}" @if($section === $label) aria-current="true" @endif>
+                        {{ $label }} <b>{{ $group->filter(fn ($r) => $r->day_attended_at !== null)->count() }}/{{ $group->count() }}</b>
                     </a>
                 @else
                     <span class="sections-none">No section <b>{{ $group->count() }}</b></span>
@@ -47,6 +75,7 @@
     @if ($canManage)
         <form class="checkin" method="POST" action="{{ route('attendance.checkin', $event) }}">
             @csrf
+            <input type="hidden" name="day" value="{{ $day->id }}">
             <div class="field {{ $errors->has('code') ? 'has-error' : '' }}">
                 <label for="code">Check in with a 6-digit code</label>
                 <input type="text" id="code" name="code" value="{{ old('code') }}" inputmode="numeric"
@@ -71,7 +100,8 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>#</th><th>Student</th><th>Year &amp; Section</th><th>Organization</th><th>Status</th>
+                        <th>#</th><th>Student</th><th>Year &amp; Section</th><th>Organization</th><th>Status{{ $isMulti ? ' (this day)' : '' }}</th>
+                        @if ($isMulti)<th>Days</th>@endif
                         @if ($canManage)<th>Action</th>@endif
                     </tr>
                 </thead>
@@ -83,22 +113,31 @@
                         <td>{{ $r->year_section ?? '-' }}</td>
                         <td>{{ $r->user->organization?->value }}</td>
                         <td data-status>
-                            @if ($r->hasAttended())
-                                <span class="tag tag-joined">Checked in {{ $r->attended_at->format('g:i A') }}</span>
+                            @if ($r->day_attended_at)
+                                <span class="tag tag-joined">Checked in {{ $r->day_attended_at->format('g:i A') }}</span>
                             @else
                                 <span class="tag">Not yet</span>
                             @endif
                         </td>
+                        @if ($isMulti)
+                            <td>{{ $r->attendances->count() }} / {{ $event->schedules->count() }}</td>
+                        @endif
                         @if ($canManage)
                             <td>
-                                <form class="inline-form" method="POST" action="{{ route('attendance.toggle', [$event, $r]) }}">
-                                    @csrf @method('PATCH')
-                                    @if ($r->hasAttended())
-                                        <button type="submit" class="link-btn danger" data-toggle>Undo</button>
-                                    @else
-                                        <button type="submit" class="link-btn" data-toggle>Mark present</button>
+                                <div class="cell-actions">
+                                    <form class="inline-form" method="POST" action="{{ route('attendance.toggle', [$event, $r]) }}">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="day" value="{{ $day->id }}">
+                                        @if ($r->day_attended_at)
+                                            <button type="submit" class="link-btn danger" data-toggle>Undo</button>
+                                        @else
+                                            <button type="submit" class="link-btn" data-toggle>Mark present</button>
+                                        @endif
+                                    </form>
+                                    @if ($r->attendances->isNotEmpty() && $event->ends_at->isPast())
+                                        <a href="{{ route('certificate.student', [$event, $r]) }}" target="_blank">Certificate</a>
                                     @endif
-                                </form>
+                                </div>
                             </td>
                         @endif
                     </tr>
@@ -112,8 +151,9 @@
         <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
         <script>
         (function () {
-            const SCAN_URL = @json(route('attendance.scan', $event));
-            const TOKEN    = @json(csrf_token());
+            const SCAN_URL = {{ \Illuminate\Support\Js::from(route('attendance.scan', $event)) }};
+            const TOKEN    = {{ \Illuminate\Support\Js::from(csrf_token()) }};
+            const DAY_ID   = {{ \Illuminate\Support\Js::from($day->id) }};
 
             const startBtn = document.getElementById('scan-start');
             const stopBtn  = document.getElementById('scan-stop');
@@ -162,7 +202,7 @@
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': TOKEN
                         },
-                        body: JSON.stringify({ code: text })
+                        body: JSON.stringify({ code: text, day: DAY_ID })
                     });
                     if (!res.ok) throw new Error('HTTP ' + res.status);
                     const data = await res.json();

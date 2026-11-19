@@ -2,15 +2,19 @@
 
 use App\Http\Controllers\Admin\EventReviewController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LetterController;
 use App\Http\Controllers\Officer\EventController as OfficerEventController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\StudentEventController;
+use App\Http\Middleware\EnsurePasswordIsChanged;
 use App\Http\Middleware\EnsureRole;
 use Illuminate\Support\Facades\Route;
 
@@ -27,55 +31,77 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 
-    // All users can view events and register 
-    Route::get('/events', [HomeController::class, 'index'])->name('events.index');
-    Route::get('/events/{event}', [StudentEventController::class, 'show'])->name('events.show');
-    Route::post('/events/{event}/join', [RegistrationController::class, 'store'])->name('events.join');
-    Route::delete('/events/{event}/leave', [RegistrationController::class, 'destroy'])->name('events.leave');
-    Route::get('/my-events', [RegistrationController::class, 'index'])->name('registrations.index');
+    // Profile: always reachable, even when the admin made the person choose a new password.
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/profile/class', [ProfileController::class, 'updateClass'])->name('profile.class');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('/profile/cor', [ProfileController::class, 'updateCor'])->name('profile.cor.update');
+    Route::get('/profile/cor', [ProfileController::class, 'cor'])->name('profile.cor');
 
-    // Request letters
-    Route::middleware(EnsureRole::class . ':officer,admin')->group(function () {
-        Route::get('/letters/{letter}', [LetterController::class, 'show'])->name('letters.show');
-        Route::get('/letters/{letter}/attachment', [LetterController::class, 'attachment'])->name('letters.attachment');
-    });
+    // Everything else waits until a temporary password has been replaced.
+    Route::middleware(EnsurePasswordIsChanged::class)->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Attendance
-    Route::middleware(EnsureRole::class . ':officer,admin,faculty')->group(function () {
-        Route::get('/events/{event}/attendance', [AttendanceController::class, 'show'])->name('attendance.show');
-        Route::get('/events/{event}/attendance/print', [AttendanceController::class, 'print'])->name('attendance.print');
-        Route::post('/events/{event}/attendance/check-in', [AttendanceController::class, 'checkIn'])->name('attendance.checkin');
-        Route::post('/events/{event}/attendance/scan', [AttendanceController::class, 'scan'])->name('attendance.scan');
-        Route::patch('/events/{event}/attendance/{registration}', [AttendanceController::class, 'toggle'])->name('attendance.toggle');
-    });
+        // All users can view events and register
+        Route::get('/events', [HomeController::class, 'index'])->name('events.index');
+        Route::get('/events/{event}', [StudentEventController::class, 'show'])->name('events.show');
+        Route::post('/events/{event}/join', [RegistrationController::class, 'store'])->name('events.join');
+        Route::delete('/events/{event}/leave', [RegistrationController::class, 'destroy'])->name('events.leave');
+        Route::get('/my-events', [RegistrationController::class, 'index'])->name('registrations.index');
+        Route::get('/events/{event}/certificate', [CertificateController::class, 'mine'])->name('certificate.mine');
 
-    // Org officers
-    Route::middleware(EnsureRole::class . ':officer')
-        ->prefix('officer')->name('officer.')->group(function () {
-            Route::get('/events', [OfficerEventController::class, 'index'])->name('events.index');
-            Route::get('/events/create', [OfficerEventController::class, 'create'])->name('events.create');
-            Route::post('/events', [OfficerEventController::class, 'store'])->name('events.store');
-            Route::patch('/events/{event}/cancel', [OfficerEventController::class, 'cancel'])->name('events.cancel');
+        // Request letters
+        Route::middleware(EnsureRole::class . ':officer,admin')->group(function () {
+            Route::get('/letters/{letter}', [LetterController::class, 'show'])->name('letters.show');
+            Route::get('/letters/{letter}/attachment', [LetterController::class, 'attachment'])->name('letters.attachment');
         });
 
-    // Admin
-    Route::middleware(EnsureRole::class . ':admin')
-        ->prefix('admin')->name('admin.')->group(function () {
-            Route::get('/events', [EventReviewController::class, 'index'])->name('events.index');
-            Route::patch('/events/{event}/approve', [EventReviewController::class, 'approve'])->name('events.approve');
-            Route::patch('/events/{event}/decline', [EventReviewController::class, 'decline'])->name('events.decline');
-
-            Route::get('/letters', [LetterController::class, 'index'])->name('letters.index');
-
-            Route::get('/users', [UserController::class, 'index'])->name('users.index');
-            Route::get('/users/faculty/create', [UserController::class, 'createFaculty'])->name('users.faculty.create');
-            Route::post('/users/faculty', [UserController::class, 'storeFaculty'])->name('users.faculty.store');
-            Route::patch('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.role');
-            Route::patch('/users/{user}/student-council', [UserController::class, 'makeStudentCouncil'])->name('users.student-council');
-            Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
-            Route::get('/users/{user}/cor', [UserController::class, 'cor'])->name('users.cor');
+        // Attendance (per event day) and certificates for the students who attended
+        Route::middleware(EnsureRole::class . ':officer,admin,faculty')->group(function () {
+            Route::get('/events/{event}/attendance', [AttendanceController::class, 'show'])->name('attendance.show');
+            Route::get('/events/{event}/attendance/print', [AttendanceController::class, 'print'])->name('attendance.print');
+            Route::post('/events/{event}/attendance/check-in', [AttendanceController::class, 'checkIn'])->name('attendance.checkin');
+            Route::post('/events/{event}/attendance/scan', [AttendanceController::class, 'scan'])->name('attendance.scan');
+            Route::patch('/events/{event}/attendance/{registration}', [AttendanceController::class, 'toggle'])->name('attendance.toggle');
+            Route::get('/events/{event}/attendance/{registration}/certificate', [CertificateController::class, 'forStudent'])->name('certificate.student');
         });
+
+        // Org officers
+        Route::middleware(EnsureRole::class . ':officer')
+            ->prefix('officer')->name('officer.')->group(function () {
+                Route::get('/events', [OfficerEventController::class, 'index'])->name('events.index');
+                Route::get('/events/create', [OfficerEventController::class, 'create'])->name('events.create');
+                Route::post('/events', [OfficerEventController::class, 'store'])->name('events.store');
+                Route::get('/events/{event}/request-again', [OfficerEventController::class, 'again'])->name('events.again');
+                Route::patch('/events/{event}/cancel', [OfficerEventController::class, 'cancel'])->name('events.cancel');
+            });
+
+        // Announcements: officers post on their own events. Officers and the admin can remove them.
+        Route::middleware(EnsureRole::class . ':officer')
+            ->post('/events/{event}/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+        Route::middleware(EnsureRole::class . ':officer,admin')
+            ->delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+
+        // Admin
+        Route::middleware(EnsureRole::class . ':admin')
+            ->prefix('admin')->name('admin.')->group(function () {
+                Route::get('/events', [EventReviewController::class, 'index'])->name('events.index');
+                Route::patch('/events/{event}/approve', [EventReviewController::class, 'approve'])->name('events.approve');
+                Route::patch('/events/{event}/decline', [EventReviewController::class, 'decline'])->name('events.decline');
+
+                Route::get('/letters', [LetterController::class, 'index'])->name('letters.index');
+
+                Route::get('/users', [UserController::class, 'index'])->name('users.index');
+                Route::get('/users/faculty/create', [UserController::class, 'createFaculty'])->name('users.faculty.create');
+                Route::post('/users/faculty', [UserController::class, 'storeFaculty'])->name('users.faculty.store');
+                Route::patch('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.role');
+                Route::patch('/users/{user}/student-council', [UserController::class, 'makeStudentCouncil'])->name('users.student-council');
+                Route::patch('/users/{user}/verify', [UserController::class, 'verifyCor'])->name('users.verify');
+                Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
+                Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+                Route::get('/users/{user}/cor', [UserController::class, 'cor'])->name('users.cor');
+            });
+    });
 });

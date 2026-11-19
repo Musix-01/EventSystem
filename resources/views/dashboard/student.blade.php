@@ -9,11 +9,35 @@
         <p class="greet">Welcome, {{ \Illuminate\Support\Str::words($user->name, 1, '') }}. </p>
             <p class = "user-info"> {{ $user->organization->value }} | {{ $user->student_number }}.</p>
         </div>
+        @if ($user->needsCorVerification())
+            <div class="verify-note" role="status">
+                <strong>Your COR is waiting for verification.</strong>
+                You can browse events, but you can join them once the admin has checked your COR.
+                <a href="{{ route('profile.show') }}">View your profile</a>
+            </div>
+        @endif
+
         <div class="stat-row">
             @include('partials.stat-card', ['icon' => 'calendar', 'tone' => 'maroon', 'title' => 'Upcoming events', 'value' => $stats['upcoming'], 'caption' => 'you joined', 'href' => route('registrations.index')])
             @include('partials.stat-card', ['icon' => 'ticket', 'tone' => 'gold', 'title' => 'Events joined', 'value' => $stats['joined'], 'caption' => 'all time', 'href' => route('registrations.index')])
             @include('partials.stat-card', ['icon' => 'check', 'tone' => 'green', 'title' => 'Events attended', 'value' => $stats['attended'], 'caption' => 'of ' . $stats['joined'] . ' joined'])
         </div>
+
+        @if ($announcements->isNotEmpty())
+            <section class="panel">
+                <div class="panel-head"><h2>Announcements</h2><a href="{{ route('registrations.index') }}">My events</a></div>
+                <ul class="announce-list">
+                    @foreach ($announcements as $a)
+                        <li>
+                            <a href="{{ route('events.show', $a->event) }}#announcements">
+                                <strong>{{ $a->title }}</strong>
+                                <span>{{ $a->event->title }}, {{ $a->created_at->diffForHumans() }}</span>
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </section>
+        @endif
 
         <section class="panel">
             <div class="panel-head"><h2>Ongoing event</h2><a href="{{ route('events.index') }}">See all</a></div>

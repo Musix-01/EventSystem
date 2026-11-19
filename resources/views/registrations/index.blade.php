@@ -24,6 +24,9 @@
                 <div>
                     @if ($registration->hasAttended())
                         <span class="tag tag-joined">Checked in</span>
+                        @if ($event->ends_at->isPast())
+                            <a class="cert-link" href="{{ route('certificate.mine', $event) }}" target="_blank">Certificate</a>
+                        @endif
                     @elseif ($event->status->value === 'cancelled')
                         <span class="status status-cancelled">Cancelled</span>
                     @elseif ($event->ends_at->isPast())

@@ -8,7 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use App\Rules\StrongPassword;
 use Illuminate\View\View;
@@ -22,6 +24,7 @@ class UserController extends Controller
         $search = trim((string) $request->query('q', ''));
         $role   = in_array($request->query('role'), ['student', 'officer', 'faculty'], true) ? $request->query('role') : null;
         $org    = Organization::tryFrom((string) $request->query('org', ''));
+        $verify = $request->query('verify') === 'pending';
 
         $users = User::query()
             ->where('role', '!=', Role::Admin->value)
@@ -32,6 +35,7 @@ class UserController extends Controller
             }))
             ->when($role, fn ($q) => $q->where('role', $role))
             ->when($org, fn ($q) => $q->where('organization', $org->value))
+            ->when($verify, fn ($q) => $q->whereIn('role', [Role::Student->value, Role::Officer->value])->whereNull('cor_verified_at'))
             ->orderBy('name')
             ->paginate(20)
             ->withQueryString();
@@ -48,6 +52,8 @@ class UserController extends Controller
             'search'        => $search,
             'role'          => $role,
             'org'           => $org,
+            'verify'        => $verify,
+            'pendingVerification' => User::whereIn('role', [Role::Student->value, Role::Officer->value])->whereNull('cor_verified_at')->count(),
             'organizations' => Organization::cases(),
         ]);
     }
@@ -62,7 +68,6 @@ class UserController extends Controller
 
         $changes = ['role' => $data['role']];
 
-        // Taking away a Student Council officer's role puts them back in their academic organization.
         if ($data['role'] === Role::Student->value
             && $user->organization === Organization::SC
             && $user->academic_organization) {
@@ -79,10 +84,7 @@ class UserController extends Controller
         return back()->with('status', $message);
     }
 
-    /**
-     * Only the admin can do this. The student keeps their student number; their academic organization
-     * is remembered so they can still join its events, and so it can be restored later.
-     */
+
     public function makeStudentCouncil(User $user): RedirectResponse
     {
         abort_unless($user->isStudent() || $user->isOfficer(), 403, 'Only student accounts can become Student Council officers.');
@@ -98,6 +100,64 @@ class UserController extends Controller
         ]);
 
         return back()->with('status', "{$user->name} is now a Student Council officer.");
+    }
+
+    public function verifyCor(Request $request, User $user): RedirectResponse
+    {
+        abort_unless($user->isStudent() || $user->isOfficer(), 403, 'Only students and officers have a COR.');
+
+        $verified = $request->boolean('verified');
+
+        $user->update([
+            'cor_verified_at' => $verified ? now() : null,
+            'cor_verified_by' => $verified ? $request->user()->id : null,
+        ]);
+
+        return back()->with('status', $verified
+            ? "{$user->name}'s COR is verified. They can join events now."
+            : "{$user->name}'s COR is marked as not verified.");
+    }
+
+    public function resetPassword(User $user): RedirectResponse
+    {
+        abort_if($user->isAdmin(), 403, 'Admin passwords are changed from the profile page.');
+
+        $temporary = $this->temporaryPassword();
+
+        $user->forceFill([
+            'password'             => $temporary,
+            'must_change_password' => true,
+            'remember_token'       => Str::random(60),
+        ])->save();
+
+        if (config('session.driver') === 'database') {
+            DB::table(config('session.table', 'sessions'))->where('user_id', $user->id)->delete();
+        }
+
+        return back()->with('temp_password', [
+            'name'     => $user->name,
+            'login'    => $user->student_number ?? $user->email,
+            'password' => $temporary,
+        ]);
+    }
+
+
+    private function temporaryPassword(): string
+    {
+        $sets  = ['ABCDEFGHJKLMNPQRSTUVWXYZ', 'abcdefghijkmnpqrstuvwxyz', '23456789'];
+        $chars = array_map(fn (string $set) => $set[random_int(0, strlen($set) - 1)], $sets);
+        $all   = implode('', $sets);
+
+        while (count($chars) < 10) {
+            $chars[] = $all[random_int(0, strlen($all) - 1)];
+        }
+
+        for ($i = count($chars) - 1; $i > 0; $i--) {
+            $j = random_int(0, $i);
+            [$chars[$i], $chars[$j]] = [$chars[$j], $chars[$i]];
+        }
+
+        return implode('', $chars);
     }
 
     public function destroy(Request $request, User $user): RedirectResponse

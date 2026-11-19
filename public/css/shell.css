@@ -242,21 +242,21 @@
     min-width: 0;
 }
 .greet-card {
-    background: var(--surface);        /* Matches the card backgrounds in your feed layout */
-    border: 1px solid var(--line); /* Optional: explicit edge border separator line */
-    border-radius: 12px;             /* Rounded container corner styling */
-    padding: 1.5rem;                 /* Creates interior padding box margins */           /* Adds layout space breathing room below the box */
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1.5rem;                
 }
 
 .greet {
     margin: 0;
-    color: var(--ink);               /* Changed to ink color to emphasize the primary header */
+    color: var(--ink);
     font-size: 1.8rem;
     font-weight: 600;
 }
 
 .user-info {
-    margin: 0;                       /* Reset default padding space values */
+    margin: 0;
     margin-top: 0.25rem;
     color: var(--muted);
     font-size: 0.9rem;
@@ -571,6 +571,11 @@ a.stat-card:hover {
     .app-main .page {
         padding: 0.5rem 1rem 3rem;
     }
+}
+/* Pages with a table (Users, Registry, Activity) use more of the screen */
+.app-main .page:has(> .table-wrap) {
+    max-width: 1800px;                      /* use "none" to fill the whole width */
+    padding-inline: clamp(1rem, 2.2vw, 2.5rem);
 }
 @media print {
     .app-frame {

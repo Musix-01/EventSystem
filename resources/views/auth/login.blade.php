@@ -53,6 +53,8 @@
     @elseif ($as === 'faculty')
     @endif
 
+    <p class="switch">Forgot your password? Please ask the ADMIN to reset it for you.</p>
+
     <link rel="stylesheet" href="{{ asset('css/password.css') }}">
     <script src="{{ asset('js/password.js') }}"></script>
 @endsection

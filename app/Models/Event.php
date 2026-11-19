@@ -52,6 +52,11 @@ class Event extends Model
         return $this->hasMany(Registration::class);
     }
 
+    public function announcements(): HasMany
+    {
+        return $this->hasMany(Announcement::class)->latest();
+    }
+
     public function schedules(): HasMany
     {
         return $this->hasMany(EventSchedule::class)->orderBy('date');
@@ -143,6 +148,9 @@ class Event extends Model
         }
         if ($this->ends_at->isPast()) {
             return 'This event has already ended.';
+        }
+        if ($user->needsCorVerification()) {
+            return 'The admin still has to verify your COR before you can join events.';
         }
         if ($this->visibility === EventVisibility::Org && ! $user->belongsToOrganization($this->organization)) {
             return 'Only ' . $this->organization->value . ' members can join this event.';

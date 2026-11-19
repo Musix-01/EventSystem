@@ -21,7 +21,11 @@ class User extends Authenticatable
         'academic_organization',
         'role',
         'password',
+        'must_change_password',
+        'year_section',
         'cor_path',
+        'cor_verified_at',
+        'cor_verified_by',
     ];
 
     protected $hidden = [
@@ -35,7 +39,9 @@ class User extends Authenticatable
             'organization'          => Organization::class,
             'academic_organization' => Organization::class,
             'role'                  => Role::class,
-            'password'     => 'hashed',
+            'password'              => 'hashed',
+            'must_change_password'  => 'boolean',
+            'cor_verified_at'       => 'datetime',
         ];
     }
 
@@ -44,14 +50,17 @@ class User extends Authenticatable
         return $this->hasMany(Registration::class);
     }
 
-    /**
-     * True for the user's own organization and, for Student Council officers,
-     * the academic organization they came from. Used to decide which events they may join.
-     */
+
     public function belongsToOrganization(?Organization $org): bool
     {
         return $org !== null
             && ($this->organization === $org || $this->academic_organization === $org);
+    }
+
+
+    public function needsCorVerification(): bool
+    {
+        return ! $this->isStaff() && $this->cor_verified_at === null;
     }
 
     public function affiliation(): string

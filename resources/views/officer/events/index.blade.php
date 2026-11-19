@@ -50,6 +50,14 @@
                 @if ($event->letter)
                     <a class="btn btn-sm btn-quiet" href="{{ route('letters.show', $event->letter) }}">View letter</a>
                 @endif
+                @if ($event->status->value === 'approved')
+                    <a class="btn btn-sm btn-quiet" href="{{ route('events.show', $event) }}#announcements">
+                        Announcements ({{ $event->announcements_count }})
+                    </a>
+                @endif
+                @if (in_array($event->status->value, ['declined', 'cancelled'], true))
+                    <a class="btn btn-sm btn-inline" href="{{ route('officer.events.again', $event) }}">Request again</a>
+                @endif
             </div>
 
             @if (in_array($event->status->value, ['pending', 'approved'], true))

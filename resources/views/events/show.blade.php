@@ -24,6 +24,11 @@
             @if ($event->description)
                 <p class="prose">{{ $event->description }}</p>
             @endif
+
+            @include('partials.announcements', [
+                'event' => $event, 'announcements' => $announcements, 'canPost' => $canPost,
+                'canModerate' => $canModerate, 'seesAnnouncements' => $seesAnnouncements,
+            ])
         </section>
 
         <aside>
@@ -33,12 +38,33 @@
                     <div class="pass-cut"></div>
                     <small>Your check-in code</small>
                     <div class="pass-code">{{ $registration->spacedCode() }}</div>
-                    @if ($registration->hasAttended())
-                        <div class="pass-state ok">Checked in at {{ $registration->attended_at->format('g:i A') }}</div>
-                    @else
+                    @php($attendedByDay = $registration->attendances->keyBy('event_schedule_id'))
+                    @if ($registration->attendances->isEmpty())
                         <small>Show this to the organizer at the entrance.</small>
+                    @elseif ($event->schedules->count() > 1)
+                        <div class="pass-state ok">Checked in on {{ $registration->attendances->count() }} of {{ $event->schedules->count() }} days</div>
+                    @else
+                        <div class="pass-state ok">Checked in at {{ $registration->attendances->first()->attended_at->format('g:i A') }}</div>
+                    @endif
+
+                    @if ($event->schedules->count() > 1)
+                        <ul class="day-checks" aria-label="Your attendance by day">
+                            @foreach ($event->schedules as $s)
+                                @php($att = $attendedByDay->get($s->id))
+                                <li class="{{ $att ? 'ok' : '' }}">
+                                    <span>{{ $s->date->format('M j') }}</span>
+                                    <b>{{ $att ? 'Present ' . $att->attended_at->format('g:i A') : '-' }}</b>
+                                </li>
+                            @endforeach
+                        </ul>
                     @endif
                 </div>
+
+                @if ($certificateReady)
+                    <div class="side-actions">
+                        <a class="btn btn-inline" style="width:100%;text-align:center" href="{{ route('certificate.mine', $event) }}" target="_blank">Certificate of attendance</a>
+                    </div>
+                @endif
 
                 @unless ($registration->hasAttended() || $event->starts_at->isPast())
                     <div class="side-actions">

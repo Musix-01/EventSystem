@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\EventStatus;
 use App\Enums\Role;
+use App\Models\Announcement;
 use App\Models\Event;
 use App\Models\Letter;
 use App\Models\Registration;
@@ -85,7 +86,15 @@ class DashboardController extends Controller
         }
         $activity = $activity->sortByDesc('at')->take(6)->values();
 
-        return view('dashboard.student', compact('user', 'stats', 'ongoing', 'upcoming', 'suggested', 'joinedIds', 'activity'));
+        // The latest announcements from events this student joined
+        $announcements = Announcement::query()
+            ->whereIn('event_id', $joinedIds)
+            ->with('event')
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        return view('dashboard.student', compact('user', 'stats', 'ongoing', 'upcoming', 'suggested', 'joinedIds', 'activity', 'announcements'));
     }
 
     // ------------------------------------------------------------------ officer
@@ -229,7 +238,6 @@ class DashboardController extends Controller
             ->limit(4)
             ->get();
 
-        // Coming up in the next 30 days
         $upcoming = $this->approved()
             ->withCount($this->attendanceCounts())
             ->hasUpcomingSchedule(now()->addDays(30))
@@ -265,7 +273,6 @@ class DashboardController extends Controller
         return view('dashboard.faculty', compact('stats', 'ongoing', 'upcoming', 'recent', 'activity', 'series'));
     }
 
-    // ------------------------------------------------------------------ helpers
 
     private function approved()
     {
@@ -277,7 +284,6 @@ class DashboardController extends Controller
         return ['registrations', 'registrations as attended_count' => fn ($q) => $q->whereNotNull('attended_at')];
     }
 
-    /** First few registered students per event, for the avatar row on cards. */
     private function withAvatars(Collection $events): Collection
     {
         foreach ($events as $event) {
@@ -290,7 +296,6 @@ class DashboardController extends Controller
         return $events;
     }
 
-    /** One entry for the "Recent activity" panel. */
     private function item(string $badgeSource, string $who, string $text, $at): array
     {
         $badge = collect(preg_split('/\s+/', trim($badgeSource)))
@@ -298,15 +303,12 @@ class DashboardController extends Controller
             ->map(fn ($w) => mb_strtoupper(mb_substr($w, 0, 1)))
             ->implode('');
 
-        // For org codes like "ELITE" use the first two letters instead of one.
         if (preg_match('/^[A-Z]{3,}$/', $badgeSource)) {
             $badge = substr($badgeSource, 0, 2);
         }
 
         return ['badge' => $badge, 'who' => $who, 'text' => $text, 'at' => $at];
     }
-
-    /** Registrations per day for the last N days (one org, or everything when $org is null). */
     private function registrationSeries(?string $org = null, int $days = 14): Collection
     {
         $from = today()->subDays($days - 1);
@@ -325,7 +327,6 @@ class DashboardController extends Controller
         });
     }
 
-    /** The user's joined events that have not ended yet, soonest first. */
     private function upcomingRegistrations(User $user): Collection
     {
         return $user->registrations()

@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/extra.css') }}">
     <link rel="stylesheet" href="{{ asset('css/shell.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/features.css') }}">
 </head>
 <body>
 @php($user = auth()->user())
@@ -20,7 +21,6 @@
 
     {{-- Left rail --}}
     <aside class="rail no-print">
-        <a class="rail-logo" href="{{ route('dashboard') }}" aria-label="Campus Events home">
 
         <nav class="rail-nav" aria-label="Main">
             <a href="{{ route('dashboard') }}" @if(request()->routeIs('dashboard')) aria-current="page" @endif>
@@ -45,6 +45,7 @@
             @if ($user->isAdmin())
                 @php($pendingCount = \App\Models\Event::where('status', 'pending')->count())
                 @php($unreadLetters = \App\Models\Letter::whereNull('read_at')->count())
+                @php($unverifiedCount = \App\Models\User::whereIn('role', ['student', 'officer'])->whereNull('cor_verified_at')->count())
                 <a href="{{ route('admin.events.index') }}" @if(request()->routeIs('admin.events.*')) aria-current="page" @endif>
                     @include('partials.icon', ['name' => 'check'])<span>Requests</span>
                     @if ($pendingCount > 0)<b class="rail-badge">{{ $pendingCount }}</b>@endif
@@ -55,6 +56,7 @@
                 </a>
                 <a href="{{ route('admin.users.index') }}" @if(request()->routeIs('admin.users.*')) aria-current="page" @endif>
                     @include('partials.icon', ['name' => 'users'])<span>Users</span>
+                    @if ($unverifiedCount > 0)<b class="rail-badge">{{ $unverifiedCount }}</b>@endif
                 </a>
             @endif
         </nav>
@@ -93,10 +95,13 @@
                     <p><strong>{{ $user->name }}</strong><br>
                        <span>{{ $user->affiliation() }}</span><br>
                        <span>{{ $user->student_number ?? $user->email }}</span></p>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="btn btn-quiet btn-sm">Log out</button>
-                    </form>
+                    <div class="menu-actions">
+                        <a class="btn btn-quiet btn-sm" href="{{ route('profile.show') }}">My profile</a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="btn btn-quiet btn-sm">Log out</button>
+                        </form>
+                    </div>
                 </div>
             </details>
         </header>

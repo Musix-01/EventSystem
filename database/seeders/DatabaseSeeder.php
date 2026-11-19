@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
             'organization'   => Organization::ELITE->value,
             'role'           => Role::Officer->value,
             'password'       => 'password',
+            'cor_verified_at' => now(),   // test accounts are already verified
         ]);
 
         // Regular student.
@@ -47,6 +48,7 @@ class DatabaseSeeder extends Seeder
             'organization'   => Organization::ELITE->value,
             'role'           => Role::Student->value,
             'password'       => 'password',
+            'cor_verified_at' => now(),   // test accounts are already verified
         ]);
     }
 }

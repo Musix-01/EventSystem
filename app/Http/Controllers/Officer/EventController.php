@@ -27,7 +27,7 @@ public function index(Request $request): View
     $query = Event::query()
         ->where('organization', $request->user()->organization->value)
         ->with(['requester', 'letter', 'schedules'])
-        ->withCount('registrations');
+        ->withCount(['registrations', 'announcements']);
 
     if ($view === 'approved') {
         $query->where('status', \App\Enums\EventStatus::Approved->value);
@@ -147,6 +147,36 @@ public function index(Request $request): View
 
         return redirect()->route('officer.events.index')
             ->with('status', 'Event request and letter sent. The admin will review them.');
+    }
+
+    /**
+     * "Request again": copy a declined or cancelled event into a fresh request form.
+     * The dates are left empty on purpose, because the old ones have usually passed.
+     */
+    public function again(Request $request, Event $event): RedirectResponse
+    {
+        abort_unless($event->organization === $request->user()->organization, 403);
+        abort_unless(in_array($event->status, [EventStatus::Declined, EventStatus::Cancelled], true), 403);
+
+        $event->load(['schedules', 'letter']);
+
+        $input = [
+            'title'       => $event->title,
+            'description' => $event->description,
+            'venue'       => $event->venue,
+            'visibility'  => $event->visibility->value,
+            'capacity'    => $event->capacity,
+            'purpose'     => $event->letter?->purpose,
+            'schedule'    => $event->schedules->map(fn ($day) => [
+                'date'       => '',
+                'start_time' => Carbon::parse($day->start_time)->format('H:i'),
+                'end_time'   => Carbon::parse($day->end_time)->format('H:i'),
+            ])->values()->all(),
+        ];
+
+        return redirect()->route('officer.events.create')
+            ->withInput($input)
+            ->with('status', "Details copied from “{$event->title}”. Choose the new dates and send the request.");
     }
 
     /** Cancel a pending or approved event of your own org. */

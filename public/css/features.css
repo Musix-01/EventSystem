@@ -1,0 +1,93 @@
+/* Per-day attendance, announcements, profile, temporary passwords, certificate. Site palette only. */
+
+/* ---------- Day tabs on the attendance page ---------- */
+.day-tabs { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+.day-tabs a {
+  display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .9rem;
+  border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface);
+  color: var(--ink); text-decoration: none; font-weight: 400;
+}
+.day-tabs a span { color: var(--muted); font-size: .88rem; }
+.day-tabs a b { min-width: 1.4rem; padding: 0 .4rem; border-radius: 99px; background: var(--paper); text-align: center; font-size: .8rem; }
+.day-tabs a:hover { border-color: var(--accent); }
+.day-tabs a[aria-current=page] { background: var(--maroon); border-color: var(--maroon); color: #fff; }
+.day-tabs a[aria-current=page] span { color: rgba(255, 255, 255, .85); }
+.day-tabs a[aria-current=page] b { background: var(--gold); color: #241416; }
+.day-note { margin: 0 0 1rem; color: var(--muted); }
+.day-note strong { color: var(--ink); }
+.day-warn { margin-left: .4rem; padding: .1rem .55rem; border-radius: 99px; background: var(--gold); color: #241416; font-size: .8rem; font-weight: 700; }
+
+/* ---------- Student's own attendance by day (event page) ---------- */
+.day-checks { list-style: none; margin: .75rem 0 0; padding: 0; display: grid; gap: .3rem; text-align: left; }
+.day-checks li { display: flex; justify-content: space-between; gap: 1rem; padding: .35rem .6rem; border-radius: 8px; background: #f1f1f1; color: #12202b; font-size: .85rem; }
+.day-checks li.ok { background: #d9f2e4; color: #14573a; }
+.cert-link { margin-left: .5rem; font-size: .88rem; }
+
+/* ---------- Announcements ---------- */
+.announcements { margin-top: 2rem; }
+.announcements h2 { font-size: 1.2rem; margin: 0 0 .75rem; }
+.announce-form { padding: 1rem 1.1rem; margin-bottom: 1rem; background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; }
+.announcement { padding: 1rem 1.1rem; margin-bottom: .75rem; background: var(--surface); border: 1.5px solid var(--line); border-left: 5px solid var(--gold); border-radius: 12px; }
+.announcement header { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+.announcement h3 { margin: 0; font-size: 1.05rem; }
+.announcement time { color: var(--muted); font-size: .85rem; }
+.announcement p { margin: .5rem 0 0; white-space: pre-line; }
+.announcement footer { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: .75rem; color: var(--muted); font-size: .85rem; }
+.announce-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .55rem; }
+.announce-list a { display: flex; flex-direction: column; padding: .65rem .8rem; border-radius: 12px; background: var(--paper); color: var(--ink); text-decoration: none; font-weight: 400; border-left: 4px solid var(--gold); }
+.announce-list a:hover { background: var(--surface); }
+.announce-list span { color: var(--muted); font-size: .85rem; }
+
+/* ---------- Notices ---------- */
+.verify-note { padding: .85rem 1.1rem; border-radius: 12px; background: #fff1c9; color: #5c4400; border-left: 5px solid var(--gold); }
+.verify-note a { color: #5c0000; }
+@media (prefers-color-scheme: dark) { .verify-note { background: #3a2f0d; color: #f5d98a; } .verify-note a { color: var(--gold); } }
+
+/* ---------- Temporary password (admin) ---------- */
+.temp-pass { margin-bottom: 1.25rem; padding: 1rem 1.25rem; border-radius: 12px; background: var(--surface); border: 2px solid var(--gold); }
+.temp-pass p { margin: 0 0 .5rem; }
+.temp-pass-row { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; margin-bottom: .5rem; }
+.temp-pass code { padding: .4rem .8rem; border-radius: 8px; background: var(--paper); font-size: 1.35rem; font-weight: 800; letter-spacing: .12em; user-select: all; }
+.temp-pass-note { color: var(--muted); font-size: .9rem; margin-bottom: 0 !important; }
+
+/* ---------- Profile ---------- */
+.profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 1.5rem; align-items: start; max-width: 1100px; }
+.profile-col { display: grid; gap: 1.5rem; }
+.kv { margin: 0; display: grid; gap: .6rem; }
+.kv div { display: flex; gap: 1rem; }
+.kv dt { min-width: 8.5rem; color: var(--muted); }
+.kv dd { margin: 0; font-weight: 600; }
+.yearsec-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: .75rem; }
+@media (max-width: 520px) { .yearsec-row { grid-template-columns: 1fr; } }
+.profile-form .btn { width: auto; }
+.menu-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.menu-actions form { margin: 0; }
+.menu-actions .btn { width: auto; text-decoration: none; display: inline-block; }
+
+/* ---------- Certificate of attendance ---------- */
+@page cert { size: A4 landscape; margin: 8mm; }
+
+.cert { page: cert; max-width: 1040px; margin: 0 auto; background: #fff; color: #241416; padding: .9rem; border: 1.5px solid var(--line); border-radius: 6px; }
+.cert-frame {
+  padding: 2.5rem 3rem 2rem; text-align: center;
+  border: 4px double #800000; outline: 2px solid #f5b800; outline-offset: -14px;
+  font-family: Georgia, "Times New Roman", serif; line-height: 1.5;
+}
+.cert-country { margin: 0; font-size: .95rem; letter-spacing: .08em; text-transform: uppercase; color: #5c0000; }
+.cert-school { margin: .1rem 0 1.25rem; font-size: 1.5rem; color: #800000; }
+.cert-title { margin: 0 0 1.25rem; font-size: 2.6rem; letter-spacing: .04em; text-transform: uppercase; color: #241416; }
+.cert-line { margin: .4rem auto; max-width: 46rem; font-size: 1.1rem; }
+.cert-name { margin: .5rem 0 0; font-size: 2.2rem; font-style: italic; color: #800000; border-bottom: 2px solid #f5b800; display: inline-block; padding: 0 2rem .15rem; }
+.cert-meta { margin: .3rem 0 .75rem; color: #5d4a4c; }
+.cert-event { margin: .3rem 0; font-size: 1.7rem; font-weight: 700; }
+.cert-sign { display: flex; justify-content: space-around; gap: 2rem; margin-top: 2.5rem; }
+.cert-sign > div { flex: 1; max-width: 18rem; display: flex; flex-direction: column; align-items: center; }
+.cert-sign-line { display: block; width: 100%; border-top: 1.5px solid #241416; margin-bottom: .3rem; }
+.cert-sign small { color: #5d4a4c; }
+.cert-no { margin: 1.5rem 0 0; font-size: .8rem; color: #5d4a4c; letter-spacing: .06em; }
+
+@media (max-width: 700px) { .cert-frame { padding: 1.5rem 1rem; } .cert-title { font-size: 1.7rem; } .cert-name { font-size: 1.5rem; } .cert-sign { flex-direction: column; align-items: center; } }
+@media print {
+  .cert { border: 0; padding: 0; max-width: none; }
+  .cert-frame { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
